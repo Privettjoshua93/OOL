@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Leave of Absence Admin/HR</title>
+<title>Leave of Absence Admin/HR</title>
 </head>
 <body>
-    <h1>Leave of Absence Admin/HR</h1>
+<h1>Leave of Absence Admin/HR</h1>
+<a href="{% url 'loa_submission_overview_admin_hr' %}"><button>View History</button></a>
+<a href="{% url 'loa_create_admin_hr' %}"><button>Create New</button></a>
+<a href="{% url 'home_admin_hr' %}"><button>Back</button></a>
 </body>
 </html>
