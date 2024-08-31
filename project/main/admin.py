@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Onboarding, Offboarding
 
-# Register your models here.
+admin.site.register(Onboarding)
+admin.site.register(Offboarding)

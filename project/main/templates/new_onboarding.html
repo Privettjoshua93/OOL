@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Onboarding</title>
+<title>New Onboarding</title>
 </head>
 <body>
-<h1>Onboarding</h1>
-<a href="{% url 'onboarding_submission_overview' %}"><button>View History</button></a>
-<a href="{% url 'new_onboarding' %}"><button>Create New</button></a>
-<a href="{% url 'home_admin_hr' %}"><button>Back</button></a>
+<h1>New Onboarding</h1>
+<form method="post">
+{% csrf_token %}
+{{ form.as_p }}
+<button type="submit">Submit</button>
+</form>
+<a href="{% url 'onboarding' %}"><button>Back</button></a>
 </body>
 </html>

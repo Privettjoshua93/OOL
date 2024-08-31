@@ -1,11 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>New Onboarding</title>
+<title>Onboarding</title>
 </head>
 <body>
-<h1>New Onboarding</h1>
-<a href="#"><button>Submit</button></a>
-<a href="{% url 'home_admin_hr' %}"><button>Back</button></a>
+<h1>Onboarding</h1>
+<form method="get" action="{% url 'onboarding' %}">
+<input type="text" name="q" placeholder="Search..." value="{{ query }}">
+<button type="submit">Search</button>
+<a href="{% url 'new_onboarding' %}"><button type="button">Create New</button></a>
+<a href="{% url 'home_admin_hr' %}"><button type="button">Back</button></a>
+</form>
+<table>
+<tr>
+<th>Employee Name</th>
+<th>Start Date</th>
+<th>Status</th>
+<th>Details</th>
+<th>Actions</th>
+</tr>
+{% for onboarding in onboardings %}
+<tr>
+<td>{{ onboarding.employee_name }}</td>
+<td>{{ onboarding.start_date }}</td>
+<td>{{ onboarding.status }}</td>
+<td>{{ onboarding.details }}</td>
+<td>
+<a href="{% url 'onboarding_submission_overview' %}?id={{ onboarding.id }}"><button>View</button></a>
+<a href="{% url 'edit_onboarding' %}?id={{ onboarding.id }}"><button>Edit</button></a>
+<a href="{% url 'delete_onboarding' %}?id={{ onboarding.id }}"><button>Delete</button></a>
+</td>
+</tr>
+{% endfor %}
+</table>
 </body>
 </html>
