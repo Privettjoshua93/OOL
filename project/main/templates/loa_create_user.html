@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Leave of Absence Create User</title>
+<title>New LOA Request</title>
 </head>
 <body>
-<h1>Leave of Absence Create User</h1>
-<a href="#"><button>Submit</button></a>
-<a href="{% url 'loa_user' %}"><button>Back</button></a>
+<h1>New LOA Request</h1>
+<form method="post">
+{% csrf_token %}
+{{ form.as_p }}
+<button type="submit">Submit</button>
+</form>
+<a href="{% url 'loa_user' %}"><button type="button">Back</button></a>
 </body>
 </html>

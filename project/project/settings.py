@@ -56,6 +56,9 @@ LOGIN_URL = '/login/'
 # Optionally, you can specify where to redirect users after they log in
 LOGIN_REDIRECT_URL = '/home/'
 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_AGE = 1209600  # 2 weeks
+
 ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [

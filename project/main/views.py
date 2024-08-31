@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Onboarding, Offboarding
-from .forms import OnboardingForm, OffboardingForm
+from django.contrib.auth import login, authenticate
+from .models import Onboarding, Offboarding, LOA
+from .forms import OnboardingForm, OffboardingForm, LOAForm, LOAAdminForm
 from django.db.models import Q
-
-
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -18,7 +17,7 @@ def is_user(user):
 
 @login_required
 def home_admin_hr(request):
-    if not is_admin(request.user):
+    if not is_admin(request.user) and not is_approver(request.user):
         return redirect('home_user')
     return render(request, 'home_admin_hr.html')
 
@@ -137,34 +136,99 @@ def delete_offboarding(request):
     return redirect('offboarding')
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda u: is_admin(u) or is_approver(u))
 def loa_admin_hr(request):
-    return render(request, 'loa_admin_hr.html')
+    query = request.GET.get('q', '')
+    if query:
+        loas = LOA.objects.filter(
+            Q(user__username__icontains=query) |
+            Q(status__icontains=query)
+        )
+    else:
+        loas = LOA.objects.all()
+    return render(request, 'loa_admin_hr.html', {'loas': loas, 'query': query})
 
 @login_required
-@user_passes_test(is_approver)
+@user_passes_test(lambda u: is_admin(u) or is_approver(u))
 def loa_submission_overview_admin_hr(request):
-    return render(request, 'loa_submission_overview_admin_hr.html')
+    loa_id = request.GET.get('id')
+    loa = get_object_or_404(LOA, id=loa_id)
+    if request.method == 'POST':
+        form = LOAAdminForm(request.POST, instance=loa)
+        if form.is_valid():
+            form.save()
+            return redirect('loa_admin_hr')
+    else:
+        form = LOAAdminForm(instance=loa)
+    return render(request, 'loa_submission_overview_admin_hr.html', {'form': form, 'loa': loa})
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda u: is_admin(u) or is_approver(u))
 def loa_create_admin_hr(request):
-    return render(request, 'loa_create_admin_hr.html')
+    if request.method == 'POST':
+        form = LOAForm(request.POST)
+        if form.is_valid():
+            loa = form.save(commit=False)
+            loa.user = request.user
+            loa.save()
+            return redirect('loa_admin_hr')
+    else:
+        form = LOAForm()
+    return render(request, 'loa_create_admin_hr.html', {'form': form})
 
 @login_required
 @user_passes_test(is_user)
 def loa_user(request):
-    return render(request, 'loa_user.html')
+    query = request.GET.get('q', '')
+    if query:
+        loas = LOA.objects.filter(user=request.user).filter(
+            Q(status__icontains=query)
+        )
+    else:
+        loas = LOA.objects.filter(user=request.user)
+    return render(request, 'loa_user.html', {'loas': loas, 'query': query})
 
 @login_required
 @user_passes_test(is_user)
 def loa_submission_overview_user(request):
-    return render(request, 'loa_submission_overview_user.html')
+    loa_id = request.GET.get('id')
+    loa = get_object_or_404(LOA, id=loa_id, user=request.user)
+    return render(request, 'loa_submission_overview_user.html', {'loa': loa})
 
 @login_required
 @user_passes_test(is_user)
 def loa_create_user(request):
-    return render(request, 'loa_create_user.html')
+    if request.method == 'POST':
+        form = LOAForm(request.POST)
+        if form.is_valid():
+            loa = form.save(commit=False)
+            loa.user = request.user
+            loa.save()
+            return redirect('loa_user')
+    else:
+        form = LOAForm()
+    return render(request, 'loa_create_user.html', {'form': form})
+
+@login_required
+@user_passes_test(is_user)
+def loa_edit_user(request, id):
+    loa = get_object_or_404(LOA, id=id, user=request.user)
+    if request.method == 'POST':
+        form = LOAForm(request.POST, instance=loa)
+        if form.is_valid():
+            loa.status = 'Pending'
+            form.save()
+            return redirect('loa_user')
+    else:
+        form = LOAForm(instance=loa)
+    return render(request, 'loa_create_user.html', {'form': form})
+
+@login_required
+@user_passes_test(is_user)
+def loa_delete_user(request, id):
+    loa = get_object_or_404(LOA, id=id, user=request.user)
+    loa.delete()
+    return redirect('loa_user')
 
 @login_required
 @user_passes_test(is_admin)

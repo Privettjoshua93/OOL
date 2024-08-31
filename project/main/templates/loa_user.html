@@ -13,22 +13,20 @@
 </form>
 <table>
 <tr>
-<th>Employee Name</th>
 <th>Start Date</th>
+<th>End Date</th>
 <th>Status</th>
-<th>Details</th>
 <th>Actions</th>
 </tr>
 {% for loa in loas %}
 <tr>
-<td>{{ loa.employee_name }}</td>
 <td>{{ loa.start_date }}</td>
+<td>{{ loa.end_date }}</td>
 <td>{{ loa.status }}</td>
-<td>{{ loa.details }}</td>
 <td>
 <a href="{% url 'loa_submission_overview_user' %}?id={{ loa.id }}"><button>View</button></a>
-<a href="{% url 'edit_loa_user' %}?id={{ loa.id }}"><button>Edit</button></a>
-<a href="{% url 'delete_loa_user' %}?id={{ loa.id }}"><button>Delete</button></a>
+<a href="{% url 'loa_edit_user' loa.id %}"><button>Edit</button></a>
+<a href="{% url 'loa_delete_user' loa.id %}"><button>Delete</button></a>
 </td>
 </tr>
 {% endfor %}

@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Leave of Absence Submission Overview User</title>
+<title>LOA Submission Overview Admin/HR</title>
 </head>
 <body>
-<h1>Leave of Absence Submission Overview User</h1>
-<a href="#"><button>Edit</button></a>
-<a href="#"><button>Delete</button></a>
-<a href="{% url 'loa_user' %}"><button>Back</button></a>
+<h1>LOA Submission Overview Admin/HR</h1>
+<form method="post">
+{% csrf_token %}
+{{ form.as_p }}
+<button type="submit">Save</button>
+</form>
+<a href="{% url 'loa_admin_hr' %}"><button type="button">Back</button></a>
 </body>
 </html>
