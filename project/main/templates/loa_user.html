@@ -5,8 +5,33 @@
 </head>
 <body>
 <h1>Leave of Absence User</h1>
-<a href="{% url 'loa_submission_overview_user' %}"><button>View History</button></a>
-<a href="{% url 'loa_create_user' %}"><button>Create New</button></a>
-<a href="{% url 'home_user' %}"><button>Back</button></a>
+<form method="get" action="{% url 'loa_user' %}">
+<input type="text" name="q" placeholder="Search..." value="{{ query }}">
+<button type="submit">Search</button>
+<a href="{% url 'loa_create_user' %}"><button type="button">Create New</button></a>
+<a href="{% url 'home_user' %}"><button type="button">Back</button></a>
+</form>
+<table>
+<tr>
+<th>Employee Name</th>
+<th>Start Date</th>
+<th>Status</th>
+<th>Details</th>
+<th>Actions</th>
+</tr>
+{% for loa in loas %}
+<tr>
+<td>{{ loa.employee_name }}</td>
+<td>{{ loa.start_date }}</td>
+<td>{{ loa.status }}</td>
+<td>{{ loa.details }}</td>
+<td>
+<a href="{% url 'loa_submission_overview_user' %}?id={{ loa.id }}"><button>View</button></a>
+<a href="{% url 'edit_loa_user' %}?id={{ loa.id }}"><button>Edit</button></a>
+<a href="{% url 'delete_loa_user' %}?id={{ loa.id }}"><button>Delete</button></a>
+</td>
+</tr>
+{% endfor %}
+</table>
 </body>
 </html>

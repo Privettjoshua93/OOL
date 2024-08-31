@@ -50,6 +50,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Redirect to login page if not authenticated
+LOGIN_URL = '/login/'  # Or whatever your login URL is
+
+# Ensure to define where they should go when logged in
+LOGIN_REDIRECT_URL = '/'
+
 ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [
