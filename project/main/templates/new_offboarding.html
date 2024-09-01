@@ -7,9 +7,24 @@
 <h1>New Offboarding</h1>
 <form method="post">
 {% csrf_token %}
-{{ form.as_p }}
+<p>
+<label for="first_name">First Name:</label>
+<input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
+</p>
+<p>
+<label for="last_name">Last Name:</label>
+<input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
+</p>
+<p>
+<label for="last_date_time">Last Date/Time:</label>
+<input type="datetime-local" name="last_date_time" value="{{ form.last_date_time.value|default:'' }}" required>
+</p>
+<p>
+<label for="additional_notes">Additional Notes:</label>
+<textarea name="additional_notes" rows="4" required>{{ form.additional_notes.value|default:'' }}</textarea>
+</p>
 <button type="submit">Submit</button>
 </form>
-<a href="{% url 'offboarding' %}"><button>Back</button></a>
+<a href="{% url 'offboarding' %}"><button type="button">Back</button></a>
 </body>
 </html>

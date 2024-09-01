@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth import login, authenticate
 from .models import Onboarding, Offboarding, LOA
 from .forms import OnboardingForm, OffboardingForm, LOAForm, LOAAdminForm
 from django.db.models import Q
@@ -31,9 +30,9 @@ def onboarding(request):
     query = request.GET.get('q', '')
     if query:
         onboardings = Onboarding.objects.filter(
-            Q(employee_name__icontains=query) |
-            Q(status__icontains=query) |
-            Q(details__icontains=query)
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(status__icontains=query)
         )
     else:
         onboardings = Onboarding.objects.all()
@@ -86,9 +85,9 @@ def offboarding(request):
     query = request.GET.get('q', '')
     if query:
         offboardings = Offboarding.objects.filter(
-            Q(employee_name__icontains=query) |
-            Q(status__icontains=query) |
-            Q(details__icontains=query)
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(status__icontains=query)
         )
     else:
         offboardings = Offboarding.objects.all()

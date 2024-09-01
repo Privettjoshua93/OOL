@@ -5,10 +5,50 @@
 </head>
 <body>
 <h1>Onboarding Submission Overview</h1>
-<p>Details of the onboarding submission:</p>
-<!-- You can add more details display here -->
-<a href="edit_url"><button>Edit</button></a>
-<a href="delete_url"><button>Delete</button></a>
+<table>
+<tr>
+<td><b>First Name:</b></td><td>{{ onboarding.first_name }}</td>
+</tr>
+<tr>
+<td><b>Last Name:</b></td><td>{{ onboarding.last_name }}</td>
+</tr>
+<tr>
+<td><b>Preferred Work Email:</b></td><td>{{ onboarding.preferred_work_email }}</td>
+</tr>
+<tr>
+<td><b>Personal Email:</b></td><td>{{ onboarding.personal_email }}</td>
+</tr>
+<tr>
+<td><b>Mobile Number:</b></td><td>{{ onboarding.mobile_number }}</td>
+</tr>
+<tr>
+<td><b>Title:</b></td><td>{{ onboarding.title }}</td>
+</tr>
+<tr>
+<td><b>Manager:</b></td><td>{{ onboarding.manager }}</td>
+</tr>
+<tr>
+<td><b>Department:</b></td><td>{{ onboarding.department }}</td>
+</tr>
+<tr>
+<td><b>Mac or PC:</b></td><td>{{ onboarding.mac_or_pc }}</td>
+</tr>
+<tr>
+<td><b>Start Date:</b></td><td>{{ onboarding.start_date }}</td>
+</tr>
+<tr>
+<td><b>Location:</b></td><td>{{ onboarding.location }}</td>
+</tr>
+<tr>
+<td><b>Groups:</b></td><td>{{ onboarding.groups }}</td>
+</tr>
+<tr>
+<td><b>Distribution Lists:</b></td><td>{{ onboarding.distribution_lists }}</td>
+</tr>
+<tr>
+<td><b>Shared Drives:</b></td><td>{{ onboarding.shared_drives }}</td>
+</tr>
+</table>
 <a href="{% url 'onboarding' %}"><button>Back</button></a>
 </body>
 </html>
