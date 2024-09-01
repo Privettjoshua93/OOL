@@ -1,5 +1,5 @@
 from django import forms
-from .models import Onboarding, Offboarding, LOA
+from .models import Onboarding, Offboarding, LOA, AzureCredentials
 
 class OnboardingForm(forms.ModelForm):
     class Meta:
@@ -38,3 +38,8 @@ class LOAAdminForm(forms.ModelForm):
     class Meta:
         model = LOA
         fields = ['start_date', 'end_date', 'status']
+
+class AzureCredentialsForm(forms.ModelForm):
+    class Meta:
+        model = AzureCredentials
+        fields = ['client_id', 'tenant_id', 'client_secret']

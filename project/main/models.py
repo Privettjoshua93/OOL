@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from encrypted_model_fields.fields import EncryptedCharField
 
 class Onboarding(models.Model):
     STATUS_CHOICES = [
@@ -63,3 +64,10 @@ class LOA(models.Model):
     def __str__(self):
         return f'{self.user.username} - {self.status}'
     
+class AzureCredentials(models.Model):
+    client_id = EncryptedCharField(max_length=100)
+    tenant_id = EncryptedCharField(max_length=100)
+    client_secret = EncryptedCharField(max_length=100)
+
+    def __str__(self):
+        return "Azure Credentials"

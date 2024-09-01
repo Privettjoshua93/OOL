@@ -1,8 +1,9 @@
+from .models import AzureCredentials
+from .forms import AzureCredentialsForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Onboarding, Offboarding, LOA
 from .forms import OnboardingForm, OffboardingForm, LOAForm, LOAAdminForm, OffboardingAdminForm, OnboardingAdminForm
-from django.db.models import Q
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -14,9 +15,14 @@ def is_approver(user):
 def is_user(user):
     return user.groups.filter(name='User').exists()
 
+def is_it(user):
+    return user.groups.filter(name='IT').exists()
+
 @login_required
 def home_admin_hr(request):
-    if not is_admin(request.user) and not is_approver(request.user):
+    if is_it(request.user):
+        return redirect('home_it')
+    if not is_admin(request.user):
         return redirect('home_user')
     return render(request, 'home_admin_hr.html')
 
@@ -263,3 +269,29 @@ def loa_delete_user(request, id):
 @user_passes_test(is_admin)
 def settings(request):
     return render(request, 'settings.html')
+
+@login_required
+def home_it(request):
+    return render(request, 'home_it.html')
+
+@login_required
+@user_passes_test(is_it)
+def home_it(request):
+    return render(request, 'home_it.html')
+
+@login_required
+@user_passes_test(is_it)
+def settings(request):
+    if request.method == 'POST':
+        form = AzureCredentialsForm(request.POST)
+        if form.is_valid():
+            AzureCredentials.objects.all().delete()  # Remove existing credentials
+            form.save()
+            return redirect('home_it')
+    else:
+        credentials = AzureCredentials.objects.first()
+        if credentials:
+            form = AzureCredentialsForm(instance=credentials)
+        else:
+            form = AzureCredentialsForm()
+    return render(request, 'settings.html', {'form': form})
