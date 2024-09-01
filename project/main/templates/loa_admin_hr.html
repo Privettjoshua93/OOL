@@ -13,15 +13,17 @@
 </form>
 <table>
 <tr>
+<th>First Name</th>
+<th>Last Name</th>
 <th>Start Date</th>
-<th>End Date</th>
 <th>Status</th>
 <th>Actions</th>
 </tr>
 {% for loa in loas %}
 <tr>
+<td>{{ loa.user.first_name }}</td>
+<td>{{ loa.user.last_name }}</td>
 <td>{{ loa.start_date }}</td>
-<td>{{ loa.end_date }}</td>
 <td>{{ loa.status }}</td>
 <td>
 <a href="{% url 'loa_submission_overview_admin_hr' %}?id={{ loa.id }}"><button>View</button></a>

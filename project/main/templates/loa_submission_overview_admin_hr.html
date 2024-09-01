@@ -7,7 +7,29 @@
 <h1>LOA Submission Overview Admin/HR</h1>
 <form method="post">
 {% csrf_token %}
-{{ form.as_p }}
+<table>
+<tr>
+<td><b>User:</b></td><td>{{ loa.user.get_full_name }}</td>
+</tr>
+<tr>
+<td><b>Start Date:</b></td><td>{{ form.start_date.value }}</td>
+<input type="hidden" name="start_date" value="{{ form.start_date.value|date:"Y-m-d" }}">
+</tr>
+<tr>
+<td><b>End Date:</b></td><td>{{ form.end_date.value }}</td>
+<input type="hidden" name="end_date" value="{{ form.end_date.value|date:"Y-m-d" }}">
+</tr>
+<tr>
+<td><b>Status:</b></td>
+<td>
+    <select name="status">
+        {% for choice in form.status.field.choices %}
+        <option value="{{ choice.0 }}" {% if form.status.value == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+        {% endfor %}
+    </select>
+</td>
+</tr>
+</table>
 <button type="submit">Save</button>
 </form>
 <a href="{% url 'loa_admin_hr' %}"><button type="button">Back</button></a>

@@ -20,8 +20,12 @@ def home_admin_hr(request):
         return redirect('home_user')
     return render(request, 'home_admin_hr.html')
 
+# User Home View
 @login_required
 def home_user(request):
+    # If user is an approver, redirect to LOA admin overview
+    if is_approver(request.user):
+        return redirect('loa_admin_hr')
     return render(request, 'home_user.html')
 
 @login_required
@@ -154,6 +158,7 @@ def delete_offboarding(request):
     offboarding.delete()
     return redirect('offboarding')
 
+# LOA Admin Overview View
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_approver(u))
 def loa_admin_hr(request):
@@ -172,15 +177,20 @@ def loa_admin_hr(request):
 def loa_submission_overview_admin_hr(request):
     loa_id = request.GET.get('id')
     loa = get_object_or_404(LOA, id=loa_id)
+    
     if request.method == 'POST':
         form = LOAAdminForm(request.POST, instance=loa)
         if form.is_valid():
             form.save()
             return redirect('loa_admin_hr')
+        else:
+            print("Form is not valid:", form.errors)
     else:
         form = LOAAdminForm(instance=loa)
+    
     return render(request, 'loa_submission_overview_admin_hr.html', {'form': form, 'loa': loa})
 
+# Creating LOA on behalf of User
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_approver(u))
 def loa_create_admin_hr(request):
