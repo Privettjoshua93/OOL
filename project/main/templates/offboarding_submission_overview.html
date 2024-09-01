@@ -5,10 +5,27 @@
 </head>
 <body>
 <h1>Offboarding Submission Overview</h1>
-<p>Details of the offboarding submission:</p>
-<!-- You can add more details display here -->
-<a href="edit_url"><button>Edit</button></a>
-<a href="delete_url"><button>Delete</button></a>
-<a href="{% url 'offboarding' %}"><button>Back</button></a>
+<form method="post">
+{% csrf_token %}
+<table>
+<tr>
+<td><b>First Name:</b></td><td>{{ form.first_name }}</td>
+</tr>
+<tr>
+<td><b>Last Name:</b></td><td>{{ form.last_name }}</td>
+</tr>
+<tr>
+<td><b>Last Date/Time:</b></td><td>{{ form.last_date_time }}</td>
+</tr>
+<tr>
+<td><b>Additional Notes:</b></td><td>{{ form.additional_notes }}</td>
+</tr>
+<tr>
+<td><b>Status:</b></td><td>{{ form.status }}</td>
+</tr>
+</table>
+<button type="submit">Save</button>
+</form>
+<a href="{% url 'offboarding' %}"><button type="button">Back</button></a>
 </body>
 </html>

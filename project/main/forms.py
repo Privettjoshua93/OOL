@@ -15,6 +15,20 @@ class OffboardingForm(forms.ModelForm):
         model = Offboarding
         fields = ['first_name', 'last_name', 'last_date_time', 'additional_notes']
 
+class OffboardingAdminForm(forms.ModelForm):
+    class Meta:
+        model = Offboarding
+        fields = ['first_name', 'last_name', 'last_date_time', 'additional_notes', 'status']
+
+class OnboardingAdminForm(forms.ModelForm):
+    class Meta:
+        model = Onboarding
+        fields = [
+            'first_name', 'last_name', 'preferred_work_email', 'personal_email', 
+            'mobile_number', 'title', 'manager', 'department', 'mac_or_pc', 
+            'start_date', 'location', 'groups', 'distribution_lists', 'shared_drives', 'status'
+        ]
+
 class LOAForm(forms.ModelForm):
     class Meta:
         model = LOA

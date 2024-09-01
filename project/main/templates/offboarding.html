@@ -5,26 +5,26 @@
 </head>
 <body>
 <h1>Offboarding</h1>
+<a href="{% url 'new_offboarding' %}"><button>Create New</button></a>
+<a href="{% url 'home_admin_hr' %}"><button>Back</button></a>
 <form method="get" action="{% url 'offboarding' %}">
 <input type="text" name="q" placeholder="Search..." value="{{ query }}">
 <button type="submit">Search</button>
-<a href="{% url 'new_offboarding' %}"><button type="button">Create New</button></a>
-<a href="{% url 'home_admin_hr' %}"><button type="button">Back</button></a>
 </form>
 <table>
 <tr>
-<th>Employee Name</th>
-<th>End Date</th>
+<th>First Name</th>
+<th>Last Name</th>
+<th>Last Date/Time</th>
 <th>Status</th>
-<th>Details</th>
 <th>Actions</th>
 </tr>
 {% for offboarding in offboardings %}
 <tr>
-<td>{{ offboarding.employee_name }}</td>
-<td>{{ offboarding.end_date }}</td>
+<td>{{ offboarding.first_name }}</td>
+<td>{{ offboarding.last_name }}</td>
+<td>{{ offboarding.last_date_time }}</td>
 <td>{{ offboarding.status }}</td>
-<td>{{ offboarding.details }}</td>
 <td>
 <a href="{% url 'offboarding_submission_overview' %}?id={{ offboarding.id }}"><button>View</button></a>
 <a href="{% url 'edit_offboarding' %}?id={{ offboarding.id }}"><button>Edit</button></a>

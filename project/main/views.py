@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Onboarding, Offboarding, LOA
-from .forms import OnboardingForm, OffboardingForm, LOAForm, LOAAdminForm
+from .forms import OnboardingForm, OffboardingForm, LOAForm, LOAAdminForm, OffboardingAdminForm, OnboardingAdminForm
 from django.db.models import Q
 
 # Helper Functions for Access Control
@@ -43,7 +43,14 @@ def onboarding(request):
 def onboarding_submission_overview(request):
     onboarding_id = request.GET.get('id')
     onboarding = get_object_or_404(Onboarding, id=onboarding_id)
-    return render(request, 'onboarding_submission_overview.html', {'onboarding': onboarding})
+    if request.method == 'POST':
+        form = OnboardingAdminForm(request.POST, instance=onboarding)
+        if form.is_valid():
+            form.save()
+            return redirect('onboarding')
+    else:
+        form = OnboardingAdminForm(instance=onboarding)
+    return render(request, 'onboarding_submission_overview.html', {'form': form, 'onboarding': onboarding})
 
 @login_required
 @user_passes_test(is_admin)
@@ -87,6 +94,7 @@ def offboarding(request):
         offboardings = Offboarding.objects.filter(
             Q(first_name__icontains=query) |
             Q(last_name__icontains=query) |
+            Q(last_date_time__icontains=query) |
             Q(status__icontains=query)
         )
     else:
@@ -98,7 +106,14 @@ def offboarding(request):
 def offboarding_submission_overview(request):
     offboarding_id = request.GET.get('id')
     offboarding = get_object_or_404(Offboarding, id=offboarding_id)
-    return render(request, 'offboarding_submission_overview.html', {'offboarding': offboarding})
+    if request.method == 'POST':
+        form = OffboardingAdminForm(request.POST, instance=offboarding)
+        if form.is_valid():
+            form.save()
+            return redirect('offboarding')
+    else:
+        form = OffboardingAdminForm(instance=offboarding)
+    return render(request, 'offboarding_submission_overview.html', {'form': form})
 
 @login_required
 @user_passes_test(is_admin)
@@ -181,7 +196,7 @@ def loa_user(request):
     query = request.GET.get('q', '')
     if query:
         loas = LOA.objects.filter(user=request.user).filter(
-            Q(status__icontains=query)
+            Q(status__icontains(query))
         )
     else:
         loas = LOA.objects.filter(user=request.user)

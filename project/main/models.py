@@ -2,6 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Onboarding(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Complete', 'Complete'),
+    ]
+
     MAC_OR_PC_CHOICES = [
         ('Mac', 'Mac'),
         ('PC', 'PC'),
@@ -21,19 +26,24 @@ class Onboarding(models.Model):
     groups = models.TextField()
     distribution_lists = models.TextField()
     shared_drives = models.TextField()
-    status = models.CharField(max_length=50, default='Pending')
-    details = models.TextField(default='')  # Added default to avoid NULL
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
+    details = models.TextField(default='')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name} - {self.status}'
 
 class Offboarding(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Complete', 'Complete'),
+    ]
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    last_date_time = models.DateTimeField()  # Ensure that input for this field will be managed
+    last_date_time = models.DateTimeField()
     additional_notes = models.TextField()
-    status = models.CharField(max_length=50, default='Pending')
-    details = models.TextField(default='')  # Added default to avoid NULL
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    details = models.TextField(default='')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name} - {self.status}'
