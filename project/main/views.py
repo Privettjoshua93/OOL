@@ -46,8 +46,13 @@ def onboarding_submission_overview(request):
     if request.method == 'POST':
         form = OnboardingAdminForm(request.POST, instance=onboarding)
         if form.is_valid():
+            print("Form is valid!")
+            print("Status before saving:", form.cleaned_data['status'])
             form.save()
+            print("Saved Onboarding Status:", onboarding.status)
             return redirect('onboarding')
+        else:
+            print("Form is not valid:", form.errors)
     else:
         form = OnboardingAdminForm(instance=onboarding)
     return render(request, 'onboarding_submission_overview.html', {'form': form, 'onboarding': onboarding})
