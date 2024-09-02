@@ -1,6 +1,7 @@
 import os
 import base64
 from pathlib import Path
+from django.conf import settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,12 +25,12 @@ INSTALLED_APPS = [
     'django.contrib.auth',
 
     # Third-party apps
-    'social_django',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
+    'social_django',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -47,7 +48,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
-    'allauth.account.middleware.AccountMiddleware',  # Add this middleware for allauth
+    'allauth.account.middleware.AccountMiddleware',
+    'project.middleware.UpdateSocialAuthMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -131,9 +133,22 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.azuread_tenant.AzureADTenantOAuth2',
 )
 
+def update_social_auth_settings():
+    from main.models import AzureCredentials
+    credentials = AzureCredentials.objects.first()
+    if credentials:
+        settings.SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY = credentials.client_id
+        settings.SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = credentials.client_secret
+        settings.SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = credentials.tenant_id
+
+
 # Social Auth Configuration
-LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/login_redirect/'  # This URL will handle the redirect logic post-login
 LOGOUT_REDIRECT_URL = '/'
+SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SCOPE = ['User.Read']
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
 
 # Ensure that these settings are correctly populated from the database
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY = ""

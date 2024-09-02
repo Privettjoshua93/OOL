@@ -8,7 +8,7 @@
 <form method="get" action="{% url 'loa_admin_hr' %}">
 <input type="text" name="q" placeholder="Search..." value="{{ query }}">
 <button type="submit">Search</button>
-<a href="{% url 'loa_create_admin_hr' %}"><button type="button">Create New</button></a>
+<a href="{% url 'loa_create_user' %}"><button type="button">Create New</button></a> <!-- Redirect to user creation page -->
 <a href="{% url 'home_admin_hr' %}"><button type="button">Back</button></a>
 </form>
 <table>
@@ -26,7 +26,7 @@
 <td>{{ loa.start_date }}</td>
 <td>{{ loa.status }}</td>
 <td>
-<a href="{% url 'loa_submission_overview_admin_hr' %}?id={{ loa.id }}"><button>View</button></a>
+<a href="{% url 'loa_submission_overview_admin_hr' %}?id={{ loa.id }}"><button type="button">View</button></a>
 </td>
 </tr>
 {% endfor %}

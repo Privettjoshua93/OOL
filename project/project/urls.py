@@ -16,10 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView, TemplateView
+from main import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/login/', TemplateView.as_view(template_name="login.html"), name='login'),
     path('accounts/', include('allauth.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),
-    path('', include('main.urls')),  # Ensure this line includes paths from the main app
+    path('login_redirect/', views.login_redirect, name='login_redirect'),
+    path('', RedirectView.as_view(url='/login_redirect/')),  # Ensure proper landing post-login
+    path('', include('main.urls')),
 ]

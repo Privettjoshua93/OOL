@@ -8,6 +8,7 @@ import json
 from social_django.utils import load_strategy
 from .models import AzureCredentials
 from .forms import AzureCredentialsForm
+from django.urls import reverse
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -30,16 +31,20 @@ def home_admin_hr(request):
         return redirect('home_user')
     return render(request, 'home_admin_hr.html')
 
-# User Home View
 @login_required
 def home_user(request):
-    # If user is an approver, redirect to LOA admin overview
     if is_approver(request.user):
         return redirect('loa_admin_hr')
     return render(request, 'home_user.html')
 
 @login_required
-@user_passes_test(is_admin)
+def home_it(request):
+    if not is_it(request.user):  # Prevent unauthorized access to IT home
+        return redirect('login_redirect')
+    return render(request, 'home_it.html')
+
+@login_required
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def onboarding(request):
     query = request.GET.get('q', '')
     if query:
@@ -53,7 +58,7 @@ def onboarding(request):
     return render(request, 'onboarding.html', {'onboardings': onboardings, 'query': query})
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def onboarding_submission_overview(request):
     onboarding_id = request.GET.get('id')
     onboarding = get_object_or_404(Onboarding, id=onboarding_id)
@@ -72,7 +77,7 @@ def onboarding_submission_overview(request):
     return render(request, 'onboarding_submission_overview.html', {'form': form, 'onboarding': onboarding})
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def new_onboarding(request):
     if request.method == 'POST':
         form = OnboardingForm(request.POST)
@@ -84,7 +89,7 @@ def new_onboarding(request):
     return render(request, 'new_onboarding.html', {'form': form})
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def edit_onboarding(request):
     onboarding_id = request.GET.get('id')
     onboarding = get_object_or_404(Onboarding, id=onboarding_id)
@@ -98,7 +103,7 @@ def edit_onboarding(request):
     return render(request, 'new_onboarding.html', {'form': form})
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def delete_onboarding(request):
     onboarding_id = request.GET.get('id')
     onboarding = get_object_or_404(Onboarding, id=onboarding_id)
@@ -106,7 +111,7 @@ def delete_onboarding(request):
     return redirect('onboarding')
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def offboarding(request):
     query = request.GET.get('q', '')
     if query:
@@ -121,7 +126,7 @@ def offboarding(request):
     return render(request, 'offboarding.html', {'offboardings': offboardings, 'query': query})
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def offboarding_submission_overview(request):
     offboarding_id = request.GET.get('id')
     offboarding = get_object_or_404(Offboarding, id=offboarding_id)
@@ -135,7 +140,7 @@ def offboarding_submission_overview(request):
     return render(request, 'offboarding_submission_overview.html', {'form': form})
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def new_offboarding(request):
     if request.method == 'POST':
         form = OffboardingForm(request.POST)
@@ -147,7 +152,7 @@ def new_offboarding(request):
     return render(request, 'new_offboarding.html', {'form': form})
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def edit_offboarding(request):
     offboarding_id = request.GET.get('id')
     offboarding = get_object_or_404(Offboarding, id=offboarding_id)
@@ -161,7 +166,7 @@ def edit_offboarding(request):
     return render(request, 'new_offboarding.html', {'form': form})
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def delete_offboarding(request):
     offboarding_id = request.GET.get('id')
     offboarding = get_object_or_404(Offboarding, id=offboarding_id)
@@ -170,39 +175,32 @@ def delete_offboarding(request):
 
 # LOA Admin Overview View
 @login_required
-@user_passes_test(lambda u: is_admin(u) or is_approver(u))
+@user_passes_test(lambda u: is_admin(u) or is_approver(u) or is_it(u))
 def loa_admin_hr(request):
     query = request.GET.get('q', '')
     if query:
-        loas = LOA.objects.filter(
-            Q(user__username__icontains=query) |
-            Q(status__icontains=query)
-        )
+        loas = LOA.objects.filter(Q(user__username__icontains=query) | Q(status__icontains(query)))
     else:
         loas = LOA.objects.all()
     return render(request, 'loa_admin_hr.html', {'loas': loas, 'query': query})
 
 @login_required
-@user_passes_test(lambda u: is_admin(u) or is_approver(u))
+@user_passes_test(lambda u: is_admin(u) or is_approver(u) or is_it(u))
 def loa_submission_overview_admin_hr(request):
     loa_id = request.GET.get('id')
     loa = get_object_or_404(LOA, id=loa_id)
-    
     if request.method == 'POST':
         form = LOAAdminForm(request.POST, instance=loa)
         if form.is_valid():
             form.save()
             return redirect('loa_admin_hr')
-        else:
-            print("Form is not valid:", form.errors)
     else:
         form = LOAAdminForm(instance=loa)
-    
-    return render(request, 'loa_submission_overview_admin_hr.html', {'form': form, 'loa': loa})
+    return render(request, 'loa_submission_overview_admin_hr.html', {'form': form})
 
 # Creating LOA on behalf of User
 @login_required
-@user_passes_test(lambda u: is_admin(u) or is_approver(u))
+@user_passes_test(lambda u: is_admin(u) or is_approver(u) or is_it(u))
 def loa_create_admin_hr(request):
     if request.method == 'POST':
         form = LOAForm(request.POST)
@@ -220,9 +218,7 @@ def loa_create_admin_hr(request):
 def loa_user(request):
     query = request.GET.get('q', '')
     if query:
-        loas = LOA.objects.filter(user=request.user).filter(
-            Q(status__icontains(query))
-        )
+        loas = LOA.objects.filter(user=request.user).filter(Q(status__icontains=query))
     else:
         loas = LOA.objects.filter(user=request.user)
     return render(request, 'loa_user.html', {'loas': loas, 'query': query})
@@ -235,7 +231,7 @@ def loa_submission_overview_user(request):
     return render(request, 'loa_submission_overview_user.html', {'loa': loa})
 
 @login_required
-@user_passes_test(is_user)
+@user_passes_test(lambda u: is_user(u) or is_admin(u) or is_approver(u) or is_it(u))
 def loa_create_user(request):
     if request.method == 'POST':
         form = LOAForm(request.POST)
@@ -243,7 +239,7 @@ def loa_create_user(request):
             loa = form.save(commit=False)
             loa.user = request.user
             loa.save()
-            return redirect('loa_user')
+            return redirect('loa_admin_hr' if is_admin(request.user) or is_approver(request.user) or is_it(request.user) else 'loa_user')
     else:
         form = LOAForm()
     return render(request, 'loa_create_user.html', {'form': form})
@@ -270,15 +266,6 @@ def loa_delete_user(request, id):
     return redirect('loa_user')
 
 @login_required
-@user_passes_test(is_admin)
-def settings(request):
-    return render(request, 'settings.html')
-
-@login_required
-def home_it(request):
-    return render(request, 'home_it.html')
-
-@login_required
 @user_passes_test(is_it)
 def home_it(request):
     return render(request, 'home_it.html')
@@ -294,7 +281,7 @@ def update_social_auth_backend():
         settings.SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = credentials.tenant_id
 
 @login_required
-@user_passes_test(is_it)
+@user_passes_test(lambda u: is_it(u))
 def settings(request):
     if request.method == 'POST':
         form = AzureCredentialsForm(request.POST)
@@ -312,3 +299,14 @@ def settings(request):
     
     update_social_auth_backend()  # Ensure backend is updated
     return render(request, 'settings.html', {'form': form})
+
+@login_required
+def login_redirect(request):
+    if is_it(request.user):
+        return redirect('home_it')
+    elif is_admin(request.user):
+        return redirect('home_admin_hr')
+    elif is_approver(request.user):
+        return redirect('loa_admin_hr')
+    return redirect('home_user')
+

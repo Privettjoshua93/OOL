@@ -24,4 +24,5 @@ urlpatterns = [
     path('loa_delete_user/<int:id>/', views.loa_delete_user, name='loa_delete_user'),
     path('home_it/', views.home_it, name='home_it'),
     path('settings/', views.settings, name='settings'),
+    
 ]
