@@ -4,6 +4,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Onboarding, Offboarding, LOA
 from .forms import OnboardingForm, OffboardingForm, LOAForm, LOAAdminForm, OffboardingAdminForm, OnboardingAdminForm
+import json
+from social_django.utils import load_strategy
+from .models import AzureCredentials
+from .forms import AzureCredentialsForm
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -279,6 +283,16 @@ def home_it(request):
 def home_it(request):
     return render(request, 'home_it.html')
 
+# Function to dynamically update the `settings.py` with stored credentials
+def update_social_auth_backend():
+    from django.conf import settings  # Import here to avoid issues with circular imports
+    credentials = AzureCredentials.objects.first()
+    
+    if credentials:
+        settings.SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY = credentials.client_id
+        settings.SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = credentials.client_secret
+        settings.SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = credentials.tenant_id
+
 @login_required
 @user_passes_test(is_it)
 def settings(request):
@@ -287,6 +301,7 @@ def settings(request):
         if form.is_valid():
             AzureCredentials.objects.all().delete()  # Remove existing credentials
             form.save()
+            update_social_auth_backend()  # Update the backend with new credentials
             return redirect('home_it')
     else:
         credentials = AzureCredentials.objects.first()
@@ -294,4 +309,6 @@ def settings(request):
             form = AzureCredentialsForm(instance=credentials)
         else:
             form = AzureCredentialsForm()
+    
+    update_social_auth_backend()  # Ensure backend is updated
     return render(request, 'settings.html', {'form': form})

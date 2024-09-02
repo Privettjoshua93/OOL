@@ -1,5 +1,4 @@
 from django.urls import path
-from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
@@ -23,9 +22,6 @@ urlpatterns = [
     path('loa_create_user/', views.loa_create_user, name='loa_create_user'),
     path('loa_edit_user/<int:id>/', views.loa_edit_user, name='loa_edit_user'),
     path('loa_delete_user/<int:id>/', views.loa_delete_user, name='loa_delete_user'),
-    path('settings/', views.settings, name='settings'),
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(template_name='logged_out.html'), name='logout'),
     path('home_it/', views.home_it, name='home_it'),
-    
+    path('settings/', views.settings, name='settings'),
 ]
