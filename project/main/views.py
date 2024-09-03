@@ -9,6 +9,7 @@ from social_django.utils import load_strategy
 from .models import AzureCredentials
 from .forms import AzureCredentialsForm
 from django.urls import reverse
+from .utils import get_user_emails_by_group, send_email
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -83,6 +84,12 @@ def new_onboarding(request):
         form = OnboardingForm(request.POST)
         if form.is_valid():
             form.save()
+            recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+            send_email(
+                'New Onboarding Created',
+                'A new onboarding entry has been created.',
+                recipient_list
+            )
             return redirect('onboarding')
     else:
         form = OnboardingForm()
@@ -146,6 +153,12 @@ def new_offboarding(request):
         form = OffboardingForm(request.POST)
         if form.is_valid():
             form.save()
+            recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+            send_email(
+                'New Offboarding Created',
+                'A new offboarding entry has been created.',
+                recipient_list
+            )
             return redirect('offboarding')
     else:
         form = OffboardingForm()
@@ -193,10 +206,18 @@ def loa_submission_overview_admin_hr(request):
         form = LOAAdminForm(request.POST, instance=loa)
         if form.is_valid():
             form.save()
+            recipient_list = [loa.user.email]
+            send_email(
+                'LOA Status Updated',
+                'Your leave of absence status has been updated.',
+                recipient_list
+            )
             return redirect('loa_admin_hr')
+        else:
+            print("Form is not valid:", form.errors)
     else:
         form = LOAAdminForm(instance=loa)
-    return render(request, 'loa_submission_overview_admin_hr.html', {'form': form})
+    return render(request, 'loa_submission_overview_admin_hr.html', {'form': form, 'loa': loa})
 
 # Creating LOA on behalf of User
 @login_required
@@ -239,7 +260,13 @@ def loa_create_user(request):
             loa = form.save(commit=False)
             loa.user = request.user
             loa.save()
-            return redirect('loa_admin_hr' if is_admin(request.user) or is_approver(request.user) or is_it(request.user) else 'loa_user')
+            recipient_list = get_user_emails_by_group('Approver')
+            send_email(
+                'New LOA Created',
+                'A new leave of absence entry has been created.',
+                recipient_list
+            )
+            return redirect('loa_user')
     else:
         form = LOAForm()
     return render(request, 'loa_create_user.html', {'form': form})
@@ -253,6 +280,12 @@ def loa_edit_user(request, id):
         if form.is_valid():
             loa.status = 'Pending'
             form.save()
+            recipient_list = get_user_emails_by_group('Approver')
+            send_email(
+                'LOA Status Changed to Pending',
+                'A leave of absence entry has been edited and marked as pending.',
+                recipient_list
+            )
             return redirect('loa_user')
     else:
         form = LOAForm(instance=loa)
