@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import TemplateView
 from main import views
 
 urlpatterns = [
@@ -25,6 +25,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),
     path('login_redirect/', views.login_redirect, name='login_redirect'),
-    path('', RedirectView.as_view(url='/login_redirect/')),  # Ensure proper landing post-login
-    path('', include('main.urls')),
+    path('', views.login_redirect),  # Default path to handle user redirection via login_redirect
+    path('', include('main.urls')),  # Ensure all main URLs are included
+    path('auth/', include('django.contrib.auth.urls')),  # Add Django auth URLs for login handling
 ]

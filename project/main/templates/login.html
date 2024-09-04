@@ -5,6 +5,22 @@
 </head>
 <body>
     <h2>Login</h2>
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'login_redirect' %}">
+        <p>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </p>
+        <p>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </p>
+        <p>
+            <button type="submit">Sign in</button>
+        </p>
+    </form>
+    <h2>OR</h2>
     <a href="{% url 'social:begin' 'azuread-tenant-oauth2' %}">
         <button type="button">Sign in with Microsoft</button>
     </a>

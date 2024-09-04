@@ -128,9 +128,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Enable local user authentication
     'allauth.account.auth_backends.AuthenticationBackend',
-    'social_core.backends.azuread_tenant.AzureADTenantOAuth2',
+    'social_core.backends.azuread_tenant.AzureADTenantOAuth2',  # Enable Microsoft SSO
 )
 
 def update_social_auth_settings():
