@@ -39,7 +39,8 @@ It only syncs groups named `OOL_IT`, `OOL_Admin`, `OOL_Approver`, `OOL_User`
 python manage.py sync_azure_users
 ```
 
-### Navigate to http://localhost:8000/admin, and add the IT group to your super user.
+## Navigate to http://localhost:8000/admin, and add the IT group to your super user.
 
-### Navigate to http://localhost:8000/home_admin_hr, and sign in with your super user.
-Go to Settings and set up your App details, along with your SMTP creds. (Make sure to allow authenticated SMTP on your user)
+## Navigate to http://localhost:8000/home_admin_hr, and sign in with your super user.
+
+## Go to Settings and set up your App details, along with your SMTP creds. (Make sure to allow authenticated SMTP on your user)
