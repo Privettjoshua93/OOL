@@ -165,11 +165,3 @@ ACCOUNT_EMAIL_REQUIRED = False
 # Changes might include additional SSO settings if needed
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.office365.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'testing@onoffloa.onmicrosoft.com'
-EMAIL_HOST_PASSWORD = 'DesignRed11!'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

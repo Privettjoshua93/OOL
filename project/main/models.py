@@ -27,7 +27,7 @@ class Onboarding(models.Model):
     shared_drives = models.TextField()
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
     details = models.TextField(default='')
-    
+
     def __str__(self):
         return f'{self.first_name} {self.last_name} - {self.status}'
 
@@ -45,7 +45,7 @@ class Offboarding(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name} - {self.status}'
-   
+
 class LOA(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
@@ -56,14 +56,18 @@ class LOA(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
-   
+
     def __str__(self):
         return f'{self.user.username} - {self.status}'
-   
+
 class AzureCredentials(models.Model):
     client_id = EncryptedCharField(max_length=100)
     tenant_id = EncryptedCharField(max_length=100)
     client_secret = EncryptedCharField(max_length=100)
-    
+    smtp_host = models.CharField(max_length=100, default='smtp.example.com')  # add default
+    smtp_port = models.PositiveIntegerField(default=587)  # add default
+    smtp_user = models.CharField(max_length=100, default='user@example.com')  # add default
+    smtp_password = EncryptedCharField(max_length=100, default='password')  # add default
+
     def __str__(self):
         return self.client_id

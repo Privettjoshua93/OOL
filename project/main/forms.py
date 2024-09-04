@@ -5,8 +5,8 @@ class OnboardingForm(forms.ModelForm):
     class Meta:
         model = Onboarding
         fields = [
-            'first_name', 'last_name', 'preferred_work_email', 'personal_email', 
-            'mobile_number', 'title', 'manager', 'department', 'mac_or_pc', 
+            'first_name', 'last_name', 'preferred_work_email', 'personal_email',
+            'mobile_number', 'title', 'manager', 'department', 'mac_or_pc',
             'start_date', 'location', 'groups', 'distribution_lists', 'shared_drives'
         ]
 
@@ -24,8 +24,8 @@ class OnboardingAdminForm(forms.ModelForm):
     class Meta:
         model = Onboarding
         fields = [
-            'first_name', 'last_name', 'preferred_work_email', 'personal_email', 
-            'mobile_number', 'title', 'manager', 'department', 'mac_or_pc', 
+            'first_name', 'last_name', 'preferred_work_email', 'personal_email',
+            'mobile_number', 'title', 'manager', 'department', 'mac_or_pc',
             'start_date', 'location', 'groups', 'distribution_lists', 'shared_drives', 'status'
         ]
 
@@ -40,6 +40,13 @@ class LOAAdminForm(forms.ModelForm):
         fields = ['start_date', 'end_date', 'status']
 
 class AzureCredentialsForm(forms.ModelForm):
+    email_use_tls = forms.BooleanField(required=False)
+    email_use_ssl = forms.BooleanField(required=False)
+    
     class Meta:
         model = AzureCredentials
-        fields = ['client_id', 'tenant_id', 'client_secret']
+        fields = [
+            'client_id', 'tenant_id', 'client_secret',
+            'smtp_host', 'smtp_port', 'smtp_user', 'smtp_password',
+            'email_use_tls', 'email_use_ssl'
+        ]

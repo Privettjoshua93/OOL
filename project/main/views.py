@@ -307,14 +307,25 @@ def home_it(request):
 def update_social_auth_backend():
     from django.conf import settings  # Import here to avoid issues with circular imports
     credentials = AzureCredentials.objects.first()
-    
     if credentials:
         settings.SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY = credentials.client_id
         settings.SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = credentials.client_secret
         settings.SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = credentials.tenant_id
 
+        # Update SMTP settings
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+        settings.EMAIL_HOST = credentials.smtp_host
+        settings.EMAIL_PORT = credentials.smtp_port
+        settings.EMAIL_HOST_USER = credentials.smtp_user
+        settings.EMAIL_HOST_PASSWORD = credentials.smtp_password  # Decryption handled by EncryptedCharField
+        settings.DEFAULT_FROM_EMAIL = credentials.smtp_user  # Optional, if you want to set the default from email
+
+        # Ensure TLS or SSL is set correctly
+        settings.EMAIL_USE_TLS = True
+        settings.EMAIL_USE_SSL = False
+        
 @login_required
-@user_passes_test(lambda u: is_it(u))
+@user_passes_test(is_it)
 def settings(request):
     if request.method == 'POST':
         form = AzureCredentialsForm(request.POST)
@@ -329,8 +340,9 @@ def settings(request):
             form = AzureCredentialsForm(instance=credentials)
         else:
             form = AzureCredentialsForm()
-    
-    update_social_auth_backend()  # Ensure backend is updated
+
+    # Ensure backend is updated before render ensuring decrypt email configurations
+    update_social_auth_backend()
     return render(request, 'settings.html', {'form': form})
 
 @login_required

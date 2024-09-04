@@ -13,6 +13,19 @@
         <input type="text" name="tenant_id" required value="{{ form.tenant_id.value|default:'' }}"></p>
         <p><label for="client_secret">Client Secret:</label>
         <input type="password" name="client_secret" required value="{{ form.client_secret.value|default:'' }}"></p>
+        <p><label for="smtp_host">SMTP Host:</label>
+        <input type="text" name="smtp_host" required value="{{ form.smtp_host.value|default:'' }}"></p>
+        <p><label for="smtp_port">SMTP Port:</label>
+        <input type="number" name="smtp_port" required value="{{ form.smtp_port.value|default:'' }}"></p>
+        <p><label for="smtp_user">SMTP User:</label>
+        <input type="text" name="smtp_user" required value="{{ form.smtp_user.value|default:'' }}"></p>
+        <p><label for="smtp_password">SMTP Password:</label>
+        <input type="password" name="smtp_password" required value="{{ form.smtp_password.value|default:'' }}"></p>
+        <!-- Add these fields -->
+        <p><label for="email_use_tls">Use TLS:</label>
+        <input type="checkbox" name="email_use_tls" {% if form.email_use_tls.value %}checked{% endif %}></p>
+        <p><label for="email_use_ssl">Use SSL:</label>
+        <input type="checkbox" name="email_use_ssl" {% if form.email_use_ssl.value %}checked{% endif %}></p>
         <button type="submit">Save</button>
     </form>
     <a href="{% url 'home_it' %}"><button type="button">Back</button></a>
