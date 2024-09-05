@@ -1,17 +1,14 @@
-from .models import AzureCredentials
-from .forms import AzureCredentialsForm
+from .models import AzureCredentials, Onboarding, Offboarding, LOA, OnboardingField, populate_default_fields
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Onboarding, Offboarding, LOA
-from .forms import OnboardingForm, OffboardingForm, LOAForm, LOAAdminForm, OffboardingAdminForm, OnboardingAdminForm
+from .forms import OffboardingForm, LOAForm, LOAAdminForm, OffboardingAdminForm, AzureCredentialsForm, DynamicOnboardingForm, OnboardingAdminForm
 import json
 from django.contrib.auth.models import Group, User 
 from social_django.utils import load_strategy
-from .models import AzureCredentials
-from .forms import AzureCredentialsForm
 from django.urls import reverse
 from .utils import get_user_emails_by_group, send_email
 import requests
+from datetime import date, datetime
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -48,32 +45,32 @@ def home_it(request):
     return render(request, 'home_it.html')
 
 @login_required
-@user_passes_test(lambda user: is_admin(user) or is_it(user))
+@user_passes_test(lambda u: is_admin(u) or is_it(u))
 def onboarding(request):
     query = request.GET.get('q', '')
     sort_by = request.GET.get('sort_by', 'start_date_desc')
     status_filter = request.GET.get('status_filter', 'pending')
 
-    # Set the initial queryset
-    onboardings = Onboarding.objects.all()
-
-    # Apply search filter if query is provided
-    if query:
-        onboardings = onboardings.filter(
-            Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(status__icontains=query)
-        )
+    # Filter Onboarding records by user
+    onboardings = Onboarding.objects.filter(user=request.user)
 
     # Apply status filter
     if status_filter == 'pending':
         onboardings = onboardings.filter(status='Pending')
     elif status_filter == 'complete':
         onboardings = onboardings.filter(status='Complete')
+   
+    # Apply search filter if query is provided
+    if query:
+        onboardings = onboardings.filter(
+            field_data__icontains=query
+        )
 
     # Apply sorting
     if sort_by == 'start_date_asc':
-        onboardings = onboardings.order_by('start_date')
+        onboardings = onboardings.order_by('id')
     elif sort_by == 'start_date_desc':
-        onboardings = onboardings.order_by('-start_date')
+        onboardings = onboardings.order_by('-id')
 
     return render(request, 'onboarding.html', {'onboardings': onboardings, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
 
@@ -81,72 +78,52 @@ def onboarding(request):
 @user_passes_test(lambda u: is_admin(u) or is_it(u))
 def onboarding_submission_overview(request):
     onboarding_id = request.GET.get('id')
-    onboarding = get_object_or_404(Onboarding, id=onboarding_id)
+    onboarding_instance = get_object_or_404(Onboarding, id=onboarding_id)
     if request.method == 'POST':
-        form = OnboardingAdminForm(request.POST, instance=onboarding)
+        fields_queryset = OnboardingField.objects.filter(is_active=True).order_by('order')
+        form = DynamicOnboardingForm(request.POST, fields_queryset=fields_queryset)
         if form.is_valid():
-            form.save()
+            field_data = serialize_field_data(fields_queryset, form.cleaned_data)
+            onboarding_instance.field_data = field_data
+            onboarding_instance.status = request.POST.get('status')  # Get status from request POST data
+            onboarding_instance.save()
+
             recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
-            details_dict = {
-                'First Name': onboarding.first_name,
-                'Last Name': onboarding.last_name,
-                'Preferred Work Email': onboarding.preferred_work_email,
-                'Personal Email': onboarding.personal_email,
-                'Mobile Number': onboarding.mobile_number,
-                'Title': onboarding.title,
-                'Manager': onboarding.manager,
-                'Department': onboarding.department,
-                'Mac or PC': onboarding.mac_or_pc,
-                'Start Date': onboarding.start_date,
-                'Location': onboarding.location,
-                'Groups': onboarding.groups,
-                'Distribution Lists': onboarding.distribution_lists,
-                'Shared Drives': onboarding.shared_drives,
-                'Status': onboarding.status,
-            }
             send_email(
                 'Onboarding Status Updated',
-                details_dict,
+                field_data,
                 recipient_list
             )
             return redirect('onboarding')
     else:
-        form = OnboardingAdminForm(instance=onboarding)
-    return render(request, 'onboarding_submission_overview.html', {'form': form, 'onboarding': onboarding})
+        initial_data = {f'field_{field.id}': onboarding_instance.field_data.get(field.label) for field in OnboardingField.objects.filter(is_active=True)}
+        form = DynamicOnboardingForm(initial=initial_data, fields_queryset=OnboardingField.objects.filter(is_active=True).order_by('order'))
+
+    return render(request, 'onboarding_submission_overview.html', {'form': form})
 
 @login_required
-@user_passes_test(lambda u: is_admin(u) or is_it(u))
+def home_it(request):
+    return render(request, 'home_it.html')
+@login_required
+@user_passes_test(is_it)
 def new_onboarding(request):
     if request.method == 'POST':
-        form = OnboardingForm(request.POST)
+        fields_queryset = OnboardingField.objects.filter(is_active=True).order_by('order')
+        form = DynamicOnboardingForm(request.POST, fields_queryset=fields_queryset, user=request.user)
         if form.is_valid():
-            onboarding = form.save()
+            field_data = serialize_field_data(fields_queryset, form.cleaned_data)
+            Onboarding.objects.create(user=request.user, field_data=field_data, status='Pending')
+
             recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
-            details_dict = {
-                'First Name': onboarding.first_name,
-                'Last Name': onboarding.last_name,
-                'Preferred Work Email': onboarding.preferred_work_email,
-                'Personal Email': onboarding.personal_email,
-                'Mobile Number': onboarding.mobile_number,
-                'Title': onboarding.title,
-                'Manager': onboarding.manager,
-                'Department': onboarding.department,
-                'Mac or PC': onboarding.mac_or_pc,
-                'Start Date': onboarding.start_date,
-                'Location': onboarding.location,
-                'Groups': onboarding.groups,
-                'Distribution Lists': onboarding.distribution_lists,
-                'Shared Drives': onboarding.shared_drives,
-                'Status': onboarding.status,
-            }
             send_email(
                 'New Onboarding Created',
-                details_dict,
+                field_data,
                 recipient_list
             )
             return redirect('onboarding')
     else:
-        form = OnboardingForm()
+        fields_queryset = OnboardingField.objects.filter(is_active=True).order_by('order')
+        form = DynamicOnboardingForm(fields_queryset=fields_queryset)
     return render(request, 'new_onboarding.html', {'form': form})
 
 @login_required
@@ -598,3 +575,42 @@ settings.SOCIAL_AUTH_AZUREAD_TENANT_PIPELINE = (
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 )
+
+@login_required
+@user_passes_test(is_it)
+def configuration(request):
+    populate_default_fields()
+    fields = OnboardingField.objects.all().order_by('order')
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'add':
+            label = request.POST.get('new_label')
+            field_type = request.POST.get('new_field_type')
+            options = request.POST.get('new_options', '')
+            is_active = 'new_is_active' in request.POST
+            order = OnboardingField.objects.count()
+            OnboardingField.objects.create(label=label, field_type=field_type, options=options, is_active=is_active, order=order)
+        else:
+            for field in fields:
+                field.label = request.POST.get(f'label_{field.id}', field.label)
+                field.field_type = request.POST.get(f'field_type_{field.id}', field.field_type)
+                field.is_active = f'is_active_{field.id}' in request.POST
+                field.order = request.POST.get(f'order_{field.id}', field.order)
+                field.options = request.POST.get(f'options_{field.id}', field.options)
+                if action == 'delete' and f'delete_{field.id}' in request.POST:
+                    field.delete()
+                else:
+                    field.save()
+        return redirect('configuration')
+    
+    return render(request, 'configuration.html', {'fields': fields})
+
+def serialize_field_data(fields_queryset, cleaned_data):
+    field_data = {}
+    for field in fields_queryset:
+        field_value = cleaned_data.get(f'field_{field.id}')
+        if isinstance(field_value, (date, datetime)):
+            field_value = field_value.isoformat()  # Serialize date and datetime fields to string
+        field_data[field.label] = field_value
+    return field_data

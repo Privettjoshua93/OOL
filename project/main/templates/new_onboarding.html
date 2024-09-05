@@ -6,69 +6,10 @@
 <body>
 <h1>New Onboarding</h1>
 <form method="post">
-{% csrf_token %}
-<p>
-<label for="first_name">First Name:</label>
-<input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
-</p>
-<p>
-<label for="last_name">Last Name:</label>
-<input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
-</p>
-<p>
-<label for="preferred_work_email">Preferred Work Email:</label>
-<input type="email" name="preferred_work_email" value="{{ form.preferred_work_email.value|default:'' }}" required>
-</p>
-<p>
-<label for="personal_email">Personal Email:</label>
-<input type="email" name="personal_email" value="{{ form.personal_email.value|default:'' }}" required>
-</p>
-<p>
-<label for="mobile_number">Mobile Number:</label>
-<input type="text" name="mobile_number" value="{{ form.mobile_number.value|default:'' }}" required>
-</p>
-<p>
-<label for="title">Title:</label>
-<input type="text" name="title" value="{{ form.title.value|default:'' }}" required>
-</p>
-<p>
-<label for="manager">Manager:</label>
-<input type="text" name="manager" value="{{ form.manager.value|default:'' }}" required>
-</p>
-<p>
-<label for="department">Department:</label>
-<input type="text" name="department" value="{{ form.department.value|default:'' }}" required>
-</p>
-<p>
-<label for="mac_or_pc">Mac or PC:</label>
-<select name="mac_or_pc" required>
-{% for choice in form.mac_or_pc.field.choices %}
-<option value="{{ choice.0 }}" {% if form.mac_or_pc.value == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
-{% endfor %}
-</select>
-</p>
-<p>
-<label for="start_date">Start Date:</label>
-<input type="date" name="start_date" value="{{ form.start_date.value|default:'' }}" required>
-</p>
-<p>
-<label for="location">Location:</label>
-<input type="text" name="location" value="{{ form.location.value|default:'' }}" required>
-</p>
-<p>
-<label for="groups">Groups:</label>
-<textarea name="groups" rows="4" required>{{ form.groups.value|default:'' }}</textarea>
-</p>
-<p>
-<label for="distribution_lists">Distribution Lists:</label>
-<textarea name="distribution_lists" rows="4" required>{{ form.distribution_lists.value|default:'' }}</textarea>
-</p>
-<p>
-<label for="shared_drives">Shared Drives:</label>
-<textarea name="shared_drives" rows="4" required>{{ form.shared_drives.value|default:'' }}</textarea>
-</p>
-<button type="submit">Submit</button>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
 </form>
-<a href="{% url 'onboarding' %}"><button type="button">Back</button></a>
+<a href="{% url 'home_admin_hr' %}"><button type="button">Back</button></a>
 </body>
 </html>

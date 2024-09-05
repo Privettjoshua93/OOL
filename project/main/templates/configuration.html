@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Configuration</title>
+</head>
+<body>
+<h1>Configuration</h1>
+<form method="post">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <th>Label</th>
+            <th>Field Type</th>
+            <th>Options (For dropdowns)</th>
+            <th>Is Active?</th>
+            <th>Order</th>
+            <th>Delete</th>
+        </tr>
+        {% for field in fields %}
+            <tr>
+                <td><input type="text" name="label_{{ field.id }}" value="{{ field.label }}"></td>
+                <td>
+                    <select name="field_type_{{ field.id }}">
+                        <option value="text" {% if field.field_type == 'text' %}selected{% endif %}>Single Line of Text</option>
+                        <option value="textarea" {% if field.field_type == 'textarea' %}selected{% endif %}>Multiple Lines of Text</option>
+                        <option value="email" {% if field.field_type == 'email' %}selected{% endif %}>Email</option>
+                        <option value="number" {% if field.field_type == 'number' %}selected{% endif %}>Number</option>
+                        <option value="date" {% if field.field_type == 'date' %}selected{% endif %}>Date</option>
+                        <option value="datetime" {% if field.field_type == 'datetime' %}selected{% endif %}>Date/Time</option>
+                        <option value="dropdown" {% if field.field_type == 'dropdown' %}selected{% endif %}>Dropdown</option>
+                    </select>
+                </td>
+                <td><input type="text" name="options_{{ field.id }}" value="{{ field.options }}"></td>
+                <td><input type="checkbox" name="is_active_{{ field.id }}" {% if field.is_active %}checked{% endif %}></td>
+                <td><input type="number" name="order_{{ field.id }}" value="{{ field.order }}"></td>
+                <td><input type="checkbox" name="delete_{{ field.id }}"></td>
+            </tr>
+        {% endfor %}
+    </table>
+    <button type="submit" name="action" value="save">Save</button>
+</form>
+
+<h2>Add New Field</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="new_label" placeholder="Label" required>
+    <select name="new_field_type">
+        <option value="text">Single Line of Text</option>
+        <option value="textarea">Multiple Lines of Text</option>
+        <option value="email">Email</option>
+        <option value="number">Number</option>
+        <option value="date">Date</option>
+        <option value="datetime">Date/Time</option>
+        <option value="dropdown">Dropdown</option>
+    </select>
+    <input type="text" name="new_options" placeholder="Options (comma-separated)">
+    <input type="checkbox" name="new_is_active">
+    <input type="hidden" name="action" value="add">
+    <button type="submit">Add</button>
+</form>
+
+<a href="{% url 'home_it' %}"><button type="button">Back</button></a>
+</body>
+</html>
