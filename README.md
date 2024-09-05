@@ -28,7 +28,7 @@ python manage.py migrate
 
 ### Navigate to http://localhost:8000/admin, and create an IT group- add your superuser to this group.
 
-###Sign into the app with your superuser http://localhost:8000/home_admin_hr and navigate to the Settings page to set up your SMTP and App.
+### Sign into the app with your superuser http://localhost:8000/home_admin_hr and navigate to the Settings page to set up your SMTP and App.
 
 ### Sync users
 It only syncs groups named, and you don't need to create the groups in Django (except for IT for setup)- it will create them if they don't exist `OOL_IT`, `OOL_Admin`, `OOL_Approver`, `OOL_User`
