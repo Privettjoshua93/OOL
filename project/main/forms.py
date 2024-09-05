@@ -32,12 +32,12 @@ class OnboardingAdminForm(forms.ModelForm):
 class LOAForm(forms.ModelForm):
     class Meta:
         model = LOA
-        fields = ['start_date', 'end_date']
+        fields = ['start_date', 'end_date', 'last_date']  # Include last_date
 
 class LOAAdminForm(forms.ModelForm):
     class Meta:
         model = LOA
-        fields = ['start_date', 'end_date', 'status']
+        fields = ['start_date', 'end_date', 'last_date', 'status']  # Include last_date
 
 class AzureCredentialsForm(forms.ModelForm):
     email_use_tls = forms.BooleanField(required=False)

@@ -55,6 +55,7 @@ class LOA(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField()
+    last_date = models.DateField(null=True, blank=True)  # New field for Last Date
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self):
