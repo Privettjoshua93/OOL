@@ -27,11 +27,12 @@ def is_it(user):
     return user.groups.filter(name='IT').exists()
 
 @login_required
+@user_passes_test(lambda u: is_admin(u) or is_it(u))
 def home_admin_hr(request):
     if is_it(request.user):
         return redirect('home_it')
     if not is_admin(request.user):
-        return redirect('home_user')
+        return redirect(['home_user'])
     return render(request, 'home_admin_hr.html')
 
 @login_required
@@ -278,7 +279,11 @@ def loa_submission_overview_admin_hr(request):
         form = LOAAdminForm(instance=loa)
     return render(request, 'loa_submission_overview_admin_hr.html', {'form': form, 'loa': loa})
 
-# Creating LOA on behalf of User
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
+
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_approver(u) or is_it(u))
 def loa_create_admin_hr(request):
@@ -288,6 +293,13 @@ def loa_create_admin_hr(request):
             loa = form.save(commit=False)
             loa.user = request.user
             loa.save()
+            # Notify approver users via email
+            recipient_list = get_user_emails_by_group('Approver')
+            send_email(
+                'New LOA Created',
+                'A new leave of absence entry has been created.',
+                recipient_list
+            )
             return redirect('loa_admin_hr')
     else:
         form = LOAForm()
@@ -351,7 +363,10 @@ def loa_create_user(request):
                 'A new leave of absence entry has been created.',
                 recipient_list
             )
-            return redirect('loa_user')
+            if is_admin(request.user) or is_approver(request.user) or is_it(request.user):
+                return redirect('loa_admin_hr')
+            else:
+                return redirect('loa_user')
     else:
         form = LOAForm()
     return render(request, 'loa_create_user.html', {'form': form})
