@@ -165,3 +165,16 @@ ACCOUNT_EMAIL_REQUIRED = False
 # Changes might include additional SSO settings if needed
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.social_auth.associate_by_email',  # Check and associate by email
+    'social_core.pipeline.user.create_user',
+    'main.views.custom_save_user_in_pipeline',  # Custom step to save additional details
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)

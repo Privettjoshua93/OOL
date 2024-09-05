@@ -5,11 +5,13 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Onboarding, Offboarding, LOA
 from .forms import OnboardingForm, OffboardingForm, LOAForm, LOAAdminForm, OffboardingAdminForm, OnboardingAdminForm
 import json
+from django.contrib.auth.models import Group, User 
 from social_django.utils import load_strategy
 from .models import AzureCredentials
 from .forms import AzureCredentialsForm
 from django.urls import reverse
 from .utils import get_user_emails_by_group, send_email
+import requests
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -348,10 +350,72 @@ def settings(request):
 @login_required
 def login_redirect(request):
     if is_it(request.user):
+        group = Group.objects.get(name='IT')
+        request.user.groups.add(group)
         return redirect('home_it')
     elif is_admin(request.user):
+        group = Group.objects.get(name='Admin')
+        request.user.groups.add(group)
         return redirect('home_admin_hr')
     elif is_approver(request.user):
+        group = Group.objects.get(name='Approver')
+        request.user.groups.add(group)
         return redirect('loa_admin_hr')
-    return redirect('home_user')
+    else:
+        group = Group.objects.get(name='User')
+        request.user.groups.add(group)
+        return redirect('home_user')
+    
 
+# Custom save user in pipeline step
+def custom_save_user_in_pipeline(backend, user=None, response=None, *args, **kwargs):
+    if backend.name == 'azuread-tenant-oauth2' and user:
+        strategy = load_strategy()
+
+        # Extract additional user details from the response
+        first_name = response.get('givenName', 'Unknown')
+        last_name = response.get('surname', 'User')
+
+        # Update user details
+        user.first_name = first_name
+        user.last_name = last_name
+
+        # Fetch the access token from the strategy's session
+        access_token = strategy.session_get('access_token')
+        headers = {'Authorization': f'Bearer {access_token}'}
+        groups_url = 'https://graph.microsoft.com/v1.0/me/memberOf'
+
+        # Make the API request to fetch user groups
+        groups_response = requests.get(groups_url, headers=headers)
+        if groups_response.status_code == 200:
+            groups_data = groups_response.json()
+
+            # Clear current groups and reassign based on Azure AD
+            user.groups.clear()
+
+            for group in groups_data.get("value", []):
+                group_name = group.get("displayName")
+                if group_name:
+                    # Ensure the group exists
+                    group, created = Group.objects.get_or_create(name=group_name)
+                    user.groups.add(group)
+
+        user.save()
+
+LOGIN_REDIRECT_URL = '/login_redirect/'
+
+
+
+settings.SOCIAL_AUTH_AZUREAD_TENANT_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.social_auth.associate_by_email',  # Ensure association by email
+    'social_core.pipeline.user.create_user',
+    'main.views.custom_save_user_in_pipeline',  # Custom pipeline step
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)

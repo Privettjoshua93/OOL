@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, User
+import msal
 import requests
 from main.models import AzureCredentials
 
@@ -8,7 +9,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         credentials = AzureCredentials.objects.first()
-        
         if not credentials:
             self.stdout.write(self.style.ERROR("No Azure credentials found."))
             return
@@ -32,15 +32,12 @@ class Command(BaseCommand):
             'client_secret': client_secret,
             'scope': scope,
         }
-
         token_headers = {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
-
         token_r = requests.post(token_endpoint, data=token_data, headers=token_headers)
         token_response = token_r.json()
         token = token_response.get('access_token')
-
         if not token:
             self.stdout.write(self.style.ERROR("Failed to obtain token."))
             self.stdout.write(self.style.ERROR(token_response))
@@ -58,8 +55,8 @@ class Command(BaseCommand):
 
         graph_url = f"{resource}/v1.0/groups"
         groups_response = requests.get(graph_url, headers=headers).json()
-        group_id_map = {}
 
+        group_id_map = {}
         for group in groups_response.get('value', []):
             if group.get('displayName') in group_mapping:
                 django_group, created = Group.objects.get_or_create(name=group_mapping[group.get('displayName')])
@@ -68,21 +65,30 @@ class Command(BaseCommand):
         # Sync Users
         user_url = f"{resource}/v1.0/users"
         users_response = requests.get(user_url, headers=headers).json()
-
         for user in users_response.get('value', []):
             if 'userPrincipalName' in user:
                 user_email = user['userPrincipalName']
                 django_user, created = User.objects.get_or_create(email=user_email)
-                if created:
-                    django_user.username = user.get('displayName', user_email)
-                    django_user.set_unusable_password()  # Ensure password is managed through Azure AD
-                    django_user.save()
 
+                # Ensure user details are updated, with defaults if needed
+                first_name = user.get('givenName') or 'Unknown'
+                last_name = user.get('surname') or 'User'
+
+                django_user.username = user_email 
+                django_user.first_name = first_name
+                django_user.last_name = last_name
+
+                if created:
+                    django_user.set_unusable_password()  # Ensure password is managed through Azure AD
+
+                django_user.save()
+                
                 member_of_url = f"{resource}/v1.0/users/{user['id']}/memberOf"
                 member_of_response = requests.get(member_of_url, headers=headers).json()
-
                 for group in member_of_response.get('value', []):
                     if group['id'] in group_id_map:
                         group_id_map[group['id']].user_set.add(django_user)
+
+                self.stdout.write(self.style.SUCCESS(f"Synced {user_email} to {', '.join(group_mapping.values())} groups."))
 
         self.stdout.write(self.style.SUCCESS("Users and groups synced successfully."))
