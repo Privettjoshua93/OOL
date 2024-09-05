@@ -8,8 +8,19 @@
 <a href="{% url 'new_onboarding' %}"><button>Create New</button></a>
 <a href="{% url 'home_admin_hr' %}"><button>Back</button></a>
 <form method="get" action="{% url 'onboarding' %}">
-<input type="text" name="q" placeholder="Search..." value="{{ query }}">
-<button type="submit">Search</button>
+    <input type="text" name="q" placeholder="Search..." value="{{ query }}">
+    <label for="sort_by">Sort by:</label>
+    <select name="sort_by">
+        <option value="start_date_desc" {% if sort_by == 'start_date_desc' %}selected{% endif %}>Start Date (Newest first)</option>
+        <option value="start_date_asc" {% if sort_by == 'start_date_asc' %}selected{% endif %}>Start Date (Oldest first)</option>
+    </select>
+    <label for="status_filter">Status:</label>
+    <select name="status_filter">
+        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="complete" {% if status_filter == 'complete' %}selected{% endif %}>Complete</option>
+        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
+    </select>
+    <button type="submit">Search</button>
 </form>
 <table>
 <tr>

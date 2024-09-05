@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from encrypted_model_fields.fields import EncryptedCharField
+from django.utils import timezone
 
 class Onboarding(models.Model):
     STATUS_CHOICES = [
@@ -38,7 +39,7 @@ class Offboarding(models.Model):
     ]
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    last_date_time = models.DateTimeField()
+    last_date_time = models.DateTimeField(default=timezone.now)  # Correct usage
     additional_notes = models.TextField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
     details = models.TextField(default='')
@@ -55,7 +56,6 @@ class LOA(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField()
-    last_date = models.DateField(null=True, blank=True)  # New field for Last Date
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self):

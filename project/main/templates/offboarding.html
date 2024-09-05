@@ -8,8 +8,19 @@
 <a href="{% url 'new_offboarding' %}"><button>Create New</button></a>
 <a href="{% url 'home_admin_hr' %}"><button>Back</button></a>
 <form method="get" action="{% url 'offboarding' %}">
-<input type="text" name="q" placeholder="Search..." value="{{ query }}">
-<button type="submit">Search</button>
+    <input type="text" name="q" placeholder="Search..." value="{{ query }}">
+    <label for="sort_by">Sort by:</label>
+    <select name="sort_by">
+        <option value="last_date_time_desc" {% if sort_by == 'last_date_time_desc' %}selected{% endif %}>Last Date/Time (Newest first)</option>
+        <option value="last_date_time_asc" {% if sort_by == 'last_date_time_asc' %}selected{% endif %}>Last Date/Time (Oldest first)</option>
+    </select>
+    <label for="status_filter">Status:</label>
+    <select name="status_filter">
+        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="complete" {% if status_filter == 'complete' %}selected{% endif %}>Complete</option>
+        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
+    </select>
+    <button type="submit">Search</button>
 </form>
 <table>
 <tr>

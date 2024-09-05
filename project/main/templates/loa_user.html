@@ -6,10 +6,22 @@
 <body>
 <h1>Leave of Absence User</h1>
 <form method="get" action="{% url 'loa_user' %}">
-<input type="text" name="q" placeholder="Search..." value="{{ query }}">
-<button type="submit">Search</button>
-<a href="{% url 'loa_create_user' %}"><button type="button">Create New</button></a>
-<a href="{% url 'home_user' %}"><button type="button">Back</button></a>
+    <input type="text" name="q" placeholder="Search..." value="{{ query }}">
+    <label for="sort_by">Sort by:</label>
+    <select name="sort_by">
+        <option value="start_date_desc" {% if sort_by == 'start_date_desc' %}selected{% endif %}>Start Date (Newest first)</option>
+        <option value="start_date_asc" {% if sort_by == 'start_date_asc' %}selected{% endif %}>Start Date (Oldest first)</option>
+    </select>
+    <label for="status_filter">Status:</label>
+    <select name="status_filter">
+        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+        <option value="denied" {% if status_filter == 'denied' %}selected{% endif %}>Denied</option>
+        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
+    </select>
+    <button type="submit">Search</button>
+    <a href="{% url 'loa_create_user' %}"><button type="button">Create New</button></a>
+    <a href="{% url 'home_user' %}"><button type="button">Back</button></a>
 </form>
 <table>
 <tr>

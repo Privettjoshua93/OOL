@@ -50,15 +50,31 @@ def home_it(request):
 @user_passes_test(lambda user: is_admin(user) or is_it(user))
 def onboarding(request):
     query = request.GET.get('q', '')
+    sort_by = request.GET.get('sort_by', 'start_date_desc')
+    status_filter = request.GET.get('status_filter', 'pending')
+
+    # Set the initial queryset
+    onboardings = Onboarding.objects.all()
+
+    # Apply search filter if query is provided
     if query:
-        onboardings = Onboarding.objects.filter(
-            Q(first_name__icontains=query) |
-            Q(last_name__icontains=query) |
-            Q(status__icontains=query)
+        onboardings = onboardings.filter(
+            Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(status__icontains=query)
         )
-    else:
-        onboardings = Onboarding.objects.all()
-    return render(request, 'onboarding.html', {'onboardings': onboardings, 'query': query})
+
+    # Apply status filter
+    if status_filter == 'pending':
+        onboardings = onboardings.filter(status='Pending')
+    elif status_filter == 'complete':
+        onboardings = onboardings.filter(status='Complete')
+
+    # Apply sorting
+    if sort_by == 'start_date_asc':
+        onboardings = onboardings.order_by('start_date')
+    elif sort_by == 'start_date_desc':
+        onboardings = onboardings.order_by('-start_date')
+
+    return render(request, 'onboarding.html', {'onboardings': onboardings, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
 
 @login_required
 @user_passes_test(lambda user: is_admin(user) or is_it(user))
@@ -123,16 +139,31 @@ def delete_onboarding(request):
 @user_passes_test(lambda user: is_admin(user) or is_it(user))
 def offboarding(request):
     query = request.GET.get('q', '')
+    sort_by = request.GET.get('sort_by', 'last_date_time_desc')
+    status_filter = request.GET.get('status_filter', 'pending')
+
+    # Set the initial queryset
+    offboardings = Offboarding.objects.all()
+
+    # Apply search filter if query is provided
     if query:
-        offboardings = Offboarding.objects.filter(
-            Q(first_name__icontains=query) |
-            Q(last_name__icontains=query) |
-            Q(last_date_time__icontains=query) |
-            Q(status__icontains=query)
+        offboardings = offboardings.filter(
+            Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(status__icontains=query)
         )
-    else:
-        offboardings = Offboarding.objects.all()
-    return render(request, 'offboarding.html', {'offboardings': offboardings, 'query': query})
+
+    # Apply status filter
+    if status_filter == 'pending':
+        offboardings = offboardings.filter(status='Pending')
+    elif status_filter == 'complete':
+        offboardings = offboardings.filter(status='Complete')
+
+    # Apply sorting
+    if sort_by == 'last_date_time_asc':
+        offboardings = offboardings.order_by('last_date_time')
+    elif sort_by == 'last_date_time_desc':
+        offboardings = offboardings.order_by('-last_date_time')
+
+    return render(request, 'offboarding.html', {'offboardings': offboardings, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
 
 @login_required
 @user_passes_test(lambda user: is_admin(user) or is_it(user))
@@ -190,14 +221,40 @@ def delete_offboarding(request):
 
 # LOA Admin Overview View
 @login_required
-@user_passes_test(lambda u: is_admin(u) or is_approver(u) or is_it(u))
+@user_passes_test(lambda user: is_admin(user) or is_approver(user) or is_it(user))
 def loa_admin_hr(request):
     query = request.GET.get('q', '')
+    sort_by = request.GET.get('sort_by', 'start_date_desc')
+    status_filter = request.GET.get('status_filter', 'pending')
+
+    # Set the initial queryset
+    loas = LOA.objects.all()
+
+    # Apply search filter if query is provided
     if query:
-        loas = LOA.objects.filter(Q(user__username__icontains=query) | Q(status__icontains(query)))
-    else:
-        loas = LOA.objects.all()
-    return render(request, 'loa_admin_hr.html', {'loas': loas, 'query': query})
+        loas = loas.filter(
+            Q(user__username__icontains=query) | Q(status__icontains=query)
+        )
+
+    # Apply status filter
+    if status_filter == 'pending':
+        loas = loas.filter(status='Pending')
+    elif status_filter == 'approved':
+        loas = loas.filter(status='Approved')
+    elif status_filter == 'denied':
+        loas = loas.filter(status='Denied')
+
+    # Apply sorting
+    if sort_by == 'start_date_asc':
+        loas = loas.order_by('start_date')
+    elif sort_by == 'start_date_desc':
+        loas = loas.order_by('-start_date')
+    elif sort_by == 'last_date_asc':
+        loas = loas.order_by('last_date')
+    elif sort_by == 'last_date_desc':
+        loas = loas.order_by('-last_date')
+
+    return render(request, 'loa_admin_hr.html', {'loas': loas, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_approver(u) or is_it(u))
@@ -240,11 +297,37 @@ def loa_create_admin_hr(request):
 @user_passes_test(is_user)
 def loa_user(request):
     query = request.GET.get('q', '')
+    sort_by = request.GET.get('sort_by', 'start_date_desc')
+    status_filter = request.GET.get('status_filter', 'pending')
+
+    # Set the initial queryset
+    loas = LOA.objects.filter(user=request.user)
+
+    # Apply search filter if query is provided
     if query:
-        loas = LOA.objects.filter(user=request.user).filter(Q(status__icontains=query))
-    else:
-        loas = LOA.objects.filter(user=request.user)
-    return render(request, 'loa_user.html', {'loas': loas, 'query': query})
+        loas = loas.filter(
+            Q(status__icontains=query)
+        )
+
+    # Apply status filter
+    if status_filter == 'pending':
+        loas = loas.filter(status='Pending')
+    elif status_filter == 'approved':
+        loas = loas.filter(status='Approved')
+    elif status_filter == 'denied':
+        loas = loas.filter(status='Denied')
+
+    # Apply sorting
+    if sort_by == 'start_date_asc':
+        loas = loas.order_by('start_date')
+    elif sort_by == 'start_date_desc':
+        loas = loas.order_by('-start_date')
+    elif sort_by == 'last_date_asc':
+        loas = loas.order_by('last_date')
+    elif sort_by == 'last_date_desc':
+        loas = loas.order_by('-last_date')
+
+    return render(request, 'loa_user.html', {'loas': loas, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
 
 @login_required
 @user_passes_test(is_user)
