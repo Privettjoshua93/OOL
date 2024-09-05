@@ -78,35 +78,70 @@ def onboarding(request):
     return render(request, 'onboarding.html', {'onboardings': onboardings, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
 
 @login_required
-@user_passes_test(lambda user: is_admin(user) or is_it(user))
+@user_passes_test(lambda u: is_admin(u) or is_it(u))
 def onboarding_submission_overview(request):
     onboarding_id = request.GET.get('id')
     onboarding = get_object_or_404(Onboarding, id=onboarding_id)
     if request.method == 'POST':
         form = OnboardingAdminForm(request.POST, instance=onboarding)
         if form.is_valid():
-            print("Form is valid!")
-            print("Status before saving:", form.cleaned_data['status'])
             form.save()
-            print("Saved Onboarding Status:", onboarding.status)
+            recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+            details_dict = {
+                'First Name': onboarding.first_name,
+                'Last Name': onboarding.last_name,
+                'Preferred Work Email': onboarding.preferred_work_email,
+                'Personal Email': onboarding.personal_email,
+                'Mobile Number': onboarding.mobile_number,
+                'Title': onboarding.title,
+                'Manager': onboarding.manager,
+                'Department': onboarding.department,
+                'Mac or PC': onboarding.mac_or_pc,
+                'Start Date': onboarding.start_date,
+                'Location': onboarding.location,
+                'Groups': onboarding.groups,
+                'Distribution Lists': onboarding.distribution_lists,
+                'Shared Drives': onboarding.shared_drives,
+                'Status': onboarding.status,
+            }
+            send_email(
+                'Onboarding Status Updated',
+                details_dict,
+                recipient_list
+            )
             return redirect('onboarding')
-        else:
-            print("Form is not valid:", form.errors)
     else:
         form = OnboardingAdminForm(instance=onboarding)
     return render(request, 'onboarding_submission_overview.html', {'form': form, 'onboarding': onboarding})
 
 @login_required
-@user_passes_test(lambda user: is_admin(user) or is_it(user))
+@user_passes_test(lambda u: is_admin(u) or is_it(u))
 def new_onboarding(request):
     if request.method == 'POST':
         form = OnboardingForm(request.POST)
         if form.is_valid():
-            form.save()
+            onboarding = form.save()
             recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+            details_dict = {
+                'First Name': onboarding.first_name,
+                'Last Name': onboarding.last_name,
+                'Preferred Work Email': onboarding.preferred_work_email,
+                'Personal Email': onboarding.personal_email,
+                'Mobile Number': onboarding.mobile_number,
+                'Title': onboarding.title,
+                'Manager': onboarding.manager,
+                'Department': onboarding.department,
+                'Mac or PC': onboarding.mac_or_pc,
+                'Start Date': onboarding.start_date,
+                'Location': onboarding.location,
+                'Groups': onboarding.groups,
+                'Distribution Lists': onboarding.distribution_lists,
+                'Shared Drives': onboarding.shared_drives,
+                'Status': onboarding.status,
+            }
             send_email(
                 'New Onboarding Created',
-                'A new onboarding entry has been created.',
+                details_dict,
                 recipient_list
             )
             return redirect('onboarding')
@@ -167,7 +202,7 @@ def offboarding(request):
     return render(request, 'offboarding.html', {'offboardings': offboardings, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
 
 @login_required
-@user_passes_test(lambda user: is_admin(user) or is_it(user))
+@user_passes_test(lambda u: is_admin(u) or is_it(u))
 def offboarding_submission_overview(request):
     offboarding_id = request.GET.get('id')
     offboarding = get_object_or_404(Offboarding, id=offboarding_id)
@@ -175,22 +210,42 @@ def offboarding_submission_overview(request):
         form = OffboardingAdminForm(request.POST, instance=offboarding)
         if form.is_valid():
             form.save()
+            recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+            details_dict = {
+                'First Name': offboarding.first_name,
+                'Last Name': offboarding.last_name,
+                'Last Date/Time': offboarding.last_date_time,
+                'Additional Notes': offboarding.additional_notes,
+                'Status': offboarding.status,
+            }
+            send_email(
+                'Offboarding Status Updated',
+                details_dict,
+                recipient_list
+            )
             return redirect('offboarding')
     else:
         form = OffboardingAdminForm(instance=offboarding)
     return render(request, 'offboarding_submission_overview.html', {'form': form})
 
 @login_required
-@user_passes_test(lambda user: is_admin(user) or is_it(user))
+@user_passes_test(lambda u: is_admin(u) or is_it(u))
 def new_offboarding(request):
     if request.method == 'POST':
         form = OffboardingForm(request.POST)
         if form.is_valid():
-            form.save()
+            offboarding = form.save()
             recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+            details_dict = {
+                'First Name': offboarding.first_name,
+                'Last Name': offboarding.last_name,
+                'Last Date/Time': offboarding.last_date_time,
+                'Additional Notes': offboarding.additional_notes,
+                'Status': offboarding.status,
+            }
             send_email(
                 'New Offboarding Created',
-                'A new offboarding entry has been created.',
+                details_dict,
                 recipient_list
             )
             return redirect('offboarding')
@@ -266,10 +321,19 @@ def loa_submission_overview_admin_hr(request):
         form = LOAAdminForm(request.POST, instance=loa)
         if form.is_valid():
             form.save()
-            recipient_list = [loa.user.email]
+            # Notify both the user and approvers
+            approver_emails = get_user_emails_by_group('Approver')
+            recipient_list = approver_emails + [loa.user.email]  # Both approver and submitter
+            details_dict = {
+                'First Name': loa.user.first_name,
+                'Last Name': loa.user.last_name,
+                'Start Date': loa.start_date,
+                'End Date': loa.end_date,
+                'Status': loa.status,
+            }
             send_email(
                 'LOA Status Updated',
-                'Your leave of absence status has been updated.',
+                details_dict,
                 recipient_list
             )
             return redirect('loa_admin_hr')
@@ -294,10 +358,18 @@ def loa_create_admin_hr(request):
             loa.user = request.user
             loa.save()
             # Notify approver users via email
-            recipient_list = get_user_emails_by_group('Approver')
+            approver_emails = get_user_emails_by_group('Approver')
+            recipient_list = approver_emails + [loa.user.email]  # Both approver and submitter
+            details_dict = {
+                'First Name': loa.user.first_name,
+                'Last Name': loa.user.last_name,
+                'Start Date': loa.start_date,
+                'End Date': loa.end_date,
+                'Status': loa.status,
+            }
             send_email(
                 'New LOA Created',
-                'A new leave of absence entry has been created.',
+                details_dict,
                 recipient_list
             )
             return redirect('loa_admin_hr')
@@ -357,10 +429,19 @@ def loa_create_user(request):
             loa = form.save(commit=False)
             loa.user = request.user
             loa.save()
-            recipient_list = get_user_emails_by_group('Approver')
+            # Notify both the user and approvers
+            approver_emails = get_user_emails_by_group('Approver')
+            recipient_list = approver_emails + [loa.user.email]  # Both approver and submitter
+            details_dict = {
+                'First Name': loa.user.first_name,
+                'Last Name': loa.user.last_name,
+                'Start Date': loa.start_date,
+                'End Date': loa.end_date,
+                'Status': loa.status,
+            }
             send_email(
                 'New LOA Created',
-                'A new leave of absence entry has been created.',
+                details_dict,
                 recipient_list
             )
             if is_admin(request.user) or is_approver(request.user) or is_it(request.user):
