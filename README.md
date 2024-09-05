@@ -12,7 +12,7 @@ http://localhost:8000/admin (you can manage the users here)
 
 ### Clear the DB
 ```sh
-python manage.py flush
+rm db.sqlite3
 ```
 
 ### Create a super user
@@ -26,21 +26,12 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-### Navigate to http://localhost:8000/admin, and create your four groups:
-- IT
-- Admin
-- Approver
-- User
+### Navigate to http://localhost:8000/admin, and create an IT group- add your superuser to this group.
+
+### Sign into the app with your superuser http://localhost:8000/home_admin_hr and navigate to the Settings page to set up your SMTP and App.
 
 ### Sync users
-(This is a little buggy at the moment - duplicates may show up after some amount of time)
-It only syncs groups named `OOL_IT`, `OOL_Admin`, `OOL_Approver`, `OOL_User`
+It only syncs groups named, and you don't need to create the groups in Django (except for IT for setup)- it will create them if they don't exist `OOL_IT`, `OOL_Admin`, `OOL_Approver`, `OOL_User`
 ```sh
 python manage.py sync_azure_users
 ```
-
-## Navigate to http://localhost:8000/admin, and add the IT group to your super user.
-
-## Navigate to http://localhost:8000/home_admin_hr, and sign in with your super user.
-
-## Go to Settings and set up your App details, along with your SMTP creds. (Make sure to allow authenticated SMTP on your user)
