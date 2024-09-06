@@ -84,13 +84,19 @@ def onboarding_submission_overview(request):
         form = DynamicOnboardingForm(request.POST, fields_queryset=fields_queryset)
         if form.is_valid():
             field_data = serialize_field_data(fields_queryset, form.cleaned_data)
+            original_status = onboarding_instance.status
             onboarding_instance.field_data = field_data
-            onboarding_instance.status = request.POST.get('status')  # Get status from request POST data
+            onboarding_instance.status = request.POST.get('status')
             onboarding_instance.save()
 
             recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+            if onboarding_instance.status != original_status:
+                subject = f'Onboarding for {field_data.get("First Name", "")} {field_data.get("Last Name", "")} Updated to {onboarding_instance.status}'
+            else:
+                subject = f'Onboarding for {field_data.get("First Name", "")} {field_data.get("Last Name", "")} has been edited'
+
             send_email(
-                'Onboarding Status Updated',
+                subject,
                 field_data,
                 recipient_list
             )
@@ -104,6 +110,7 @@ def onboarding_submission_overview(request):
 @login_required
 def home_it(request):
     return render(request, 'home_it.html')
+
 @login_required
 @user_passes_test(is_it)
 def new_onboarding(request):
@@ -115,8 +122,9 @@ def new_onboarding(request):
             Onboarding.objects.create(user=request.user, field_data=field_data, status='Pending')
 
             recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+            subject = f'New Onboarding for {field_data.get("First Name", "")} {field_data.get("Last Name", "")} on {field_data.get("Start Date", "")}'
             send_email(
-                'New Onboarding Created',
+                subject,
                 field_data,
                 recipient_list
             )
@@ -186,42 +194,50 @@ def offboarding_submission_overview(request):
     if request.method == 'POST':
         form = OffboardingAdminForm(request.POST, instance=offboarding)
         if form.is_valid():
+            original_status = offboarding.status
             form.save()
             recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+            user_full_name = f'{offboarding.user.first_name} {offboarding.user.last_name}'
+            if offboarding.status != original_status:
+                subject = f'Offboarding for {user_full_name} Updated to {offboarding.status}'
+            else:
+                subject = f'Offboarding for {user_full_name} has been edited'
             details_dict = {
-                'First Name': offboarding.first_name,
-                'Last Name': offboarding.last_name,
+                'First Name': offboarding.user.first_name,
+                'Last Name': offboarding.user.last_name,
                 'Last Date/Time': offboarding.last_date_time,
                 'Additional Notes': offboarding.additional_notes,
                 'Status': offboarding.status,
             }
             send_email(
-                'Offboarding Status Updated',
+                subject,
                 details_dict,
                 recipient_list
             )
             return redirect('offboarding')
     else:
         form = OffboardingAdminForm(instance=offboarding)
-    return render(request, 'offboarding_submission_overview.html', {'form': form})
+    return render(request, 'offboarding_submission_overview.html', {'form': form, 'offboarding': offboarding})
 
 @login_required
-@user_passes_test(lambda u: is_admin(u) or is_it(u))
+@user_passes_test(lambda user: is_admin(user) or is_it(user))
 def new_offboarding(request):
     if request.method == 'POST':
         form = OffboardingForm(request.POST)
         if form.is_valid():
             offboarding = form.save()
             recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+            user_full_name = f'{request.user.first_name} {request.user.last_name}'
+            subject = f'Offboarding for {user_full_name} at {offboarding.last_date_time} Submitted'
             details_dict = {
-                'First Name': offboarding.first_name,
-                'Last Name': offboarding.last_name,
+                'First Name': request.user.first_name,
+                'Last Name': request.user.last_name,
                 'Last Date/Time': offboarding.last_date_time,
                 'Additional Notes': offboarding.additional_notes,
                 'Status': offboarding.status,
             }
             send_email(
-                'New Offboarding Created',
+                subject,
                 details_dict,
                 recipient_list
             )
@@ -297,10 +313,14 @@ def loa_submission_overview_admin_hr(request):
     if request.method == 'POST':
         form = LOAAdminForm(request.POST, instance=loa)
         if form.is_valid():
+            original_status = loa.status
             form.save()
-            # Notify both the user and approvers
-            approver_emails = get_user_emails_by_group('Approver')
-            recipient_list = approver_emails + [loa.user.email]  # Both approver and submitter
+            recipient_list = get_user_emails_by_group('Approver') + [loa.user.email]
+            user_full_name = f'{loa.user.first_name} {loa.user.last_name}'
+            if loa.status != original_status:
+                subject = f'Absence Request for {user_full_name} Updated to {loa.status}'
+            else:
+                subject = f'Absence Request for {user_full_name} Updated'
             details_dict = {
                 'First Name': loa.user.first_name,
                 'Last Name': loa.user.last_name,
@@ -309,7 +329,7 @@ def loa_submission_overview_admin_hr(request):
                 'Status': loa.status,
             }
             send_email(
-                'LOA Status Updated',
+                subject,
                 details_dict,
                 recipient_list
             )
@@ -398,7 +418,7 @@ def loa_submission_overview_user(request):
     return render(request, 'loa_submission_overview_user.html', {'loa': loa})
 
 @login_required
-@user_passes_test(lambda u: is_user(u) or is_admin(u) or is_approver(u) or is_it(u))
+@user_passes_test(is_user)
 def loa_create_user(request):
     if request.method == 'POST':
         form = LOAForm(request.POST)
@@ -406,18 +426,18 @@ def loa_create_user(request):
             loa = form.save(commit=False)
             loa.user = request.user
             loa.save()
-            # Notify both the user and approvers
-            approver_emails = get_user_emails_by_group('Approver')
-            recipient_list = approver_emails + [loa.user.email]  # Both approver and submitter
+            recipient_list = get_user_emails_by_group('Approver')
+            user_full_name = f'{request.user.first_name} {request.user.last_name}'
+            subject = f'Absence Request for {user_full_name} Submitted'
             details_dict = {
-                'First Name': loa.user.first_name,
-                'Last Name': loa.user.last_name,
+                'First Name': request.user.first_name,
+                'Last Name': request.user.last_name,
                 'Start Date': loa.start_date,
                 'End Date': loa.end_date,
                 'Status': loa.status,
             }
             send_email(
-                'New LOA Created',
+                subject,
                 details_dict,
                 recipient_list
             )
@@ -439,9 +459,18 @@ def loa_edit_user(request, id):
             loa.status = 'Pending'
             form.save()
             recipient_list = get_user_emails_by_group('Approver')
+            user_full_name = f'{request.user.first_name} {request.user.last_name}'
+            subject = f'Absence Request for {user_full_name} Updated to {loa.status}'
+            details_dict = {
+                'First Name': request.user.first_name,
+                'Last Name': request.user.last_name,
+                'Start Date': loa.start_date,
+                'End Date': loa.end_date,
+                'Status': loa.status,
+            }
             send_email(
-                'LOA Status Changed to Pending',
-                'A leave of absence entry has been edited and marked as pending.',
+                subject,
+                details_dict,
                 recipient_list
             )
             return redirect('loa_user')
@@ -605,6 +634,7 @@ def configuration(request):
         return redirect('configuration')
     
     return render(request, 'configuration.html', {'fields': fields})
+
 
 def serialize_field_data(fields_queryset, cleaned_data):
     field_data = {}
