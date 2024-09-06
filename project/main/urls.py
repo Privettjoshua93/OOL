@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     path('home_admin_hr/', views.home_admin_hr, name='home_admin_hr'),
-    path('home_it/', views.home_it, name='home_it'),
+    path('home_user/', views.home_user, name='home_user'),  # Ensure this line exists
     path('onboarding/', views.onboarding, name='onboarding'),
     path('onboarding_submission_overview/', views.onboarding_submission_overview, name='onboarding_submission_overview'),
     path('new_onboarding/', views.new_onboarding, name='new_onboarding'),
@@ -23,5 +23,6 @@ urlpatterns = [
     path('loa_edit_user/<int:id>/', views.loa_edit_user, name='loa_edit_user'),
     path('loa_delete_user/<int:id>/', views.loa_delete_user, name='loa_delete_user'),
     path('settings/', views.settings, name='settings'),
-    path('configuration/', views.configuration, name='configuration'),  # Ensure configuration URL is defined
+    path('configuration/', views.configuration, name='configuration'),
+    path('home_it/', views.home_it, name='home_it')
 ]
