@@ -15,6 +15,7 @@ import base64
 from django.http import JsonResponse
 from django.http import HttpResponse
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from django.http import HttpResponse
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -687,9 +688,7 @@ def fetch_encryption_key_from_vault(key_identifier, client_id, client_secret, te
         raise ValueError("Failed to fetch key from Azure Key Vault") from e
     
 
-@login_required
-@user_passes_test(is_it)
-def backup_now(request):
+def backup_now(request=None):  # Make request optional
     try:
         credentials = AzureCredentials.objects.first()
         if not credentials:
@@ -704,14 +703,12 @@ def backup_now(request):
             )
         )
         container_client = blob_service_client.get_container_client(credentials.container_name)
-        
         blob_client = container_client.get_blob_client("db_backup.sqlite3")
-
+        
         with open('db.sqlite3', 'rb') as data:
             blob_client.upload_blob(data, overwrite=True)
-
+        
         return HttpResponse("Backup Successful", status=200)
-
     except Exception as e:
         logger.error(f"Error during backup: {e}")
         return HttpResponse(f"Error during backup: {e}", status=500)

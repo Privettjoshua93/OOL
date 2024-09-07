@@ -8,16 +8,16 @@ from django.core.management import call_command
 class CheckBackupMiddleware(MiddlewareMixin):
     def process_request(self, request):
         backup_file = os.path.join(settings.BASE_DIR, 'last_backup.txt')
-        now = datetime.now()
+        now = datetime.now()  # Current time
 
         if os.path.exists(backup_file):
             with open(backup_file, 'r') as file:
                 last_backup = datetime.fromisoformat(file.read().strip())
         else:
-            last_backup = now - timedelta(days=1)
+            last_backup = now - timedelta(days=1)  # Set to 24 hours ago if file doesn't exist
 
         if now - last_backup >= timedelta(days=1):
-            call_command('backup_db')
+            call_command('backup_db')  # Execute backup_db command
             with open(backup_file, 'w') as file:
                 file.write(now.isoformat())
 
