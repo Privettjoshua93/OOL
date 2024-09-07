@@ -1,5 +1,25 @@
 from django.utils.deprecation import MiddlewareMixin
 from main.models import AzureCredentials
+from datetime import datetime, timedelta
+import os
+from django.conf import settings
+from django.core.management import call_command
+
+class CheckBackupMiddleware(MiddlewareMixin):
+    def process_request(self, request):
+        backup_file = os.path.join(settings.BASE_DIR, 'last_backup.txt')
+        now = datetime.now()
+
+        if os.path.exists(backup_file):
+            with open(backup_file, 'r') as file:
+                last_backup = datetime.fromisoformat(file.read().strip())
+        else:
+            last_backup = now - timedelta(days=1)
+
+        if now - last_backup >= timedelta(days=1):
+            call_command('backup_db')
+            with open(backup_file, 'w') as file:
+                file.write(now.isoformat())
 
 class UpdateSocialAuthMiddleware(MiddlewareMixin):
     def process_request(self, request):

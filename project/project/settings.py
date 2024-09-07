@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'project.middleware.UpdateSocialAuthMiddleware',
+    'project.middleware.CheckBackupMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
