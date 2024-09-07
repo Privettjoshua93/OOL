@@ -1,4 +1,3 @@
-<!-- templates/loa_create.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,6 +10,6 @@
         {{ form.as_p }}
         <button type="submit">Submit</button>
     </form>
-    <a href="{% if is_admin or is_approver or is_it %}{% url 'loa_admin_hr' %}{% else %}{% url 'loa_user' %}{% endif %}">Back</a>
+    <a href="{% if is_admin or is_approver or is_it %}{% url 'loa_admin_hr' %}{% else %}{% url 'loa_user' %}{% endif %}"><button type="button">Back</button></a>
 </body>
 </html>

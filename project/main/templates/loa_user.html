@@ -20,7 +20,7 @@
         <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
     </select>
     <button type="submit">Search</button>
-    <a href="{% url 'loa_create_user' %}"><button type="button">Create New</button></a>
+    <a href="{% url 'loa_create' %}"><button type="button">Create New</button></a> <!-- Updated this line -->
     <a href="{% url 'home_user' %}"><button type="button">Back</button></a>
 </form>
 <table>

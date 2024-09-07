@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     path('home_admin_hr/', views.home_admin_hr, name='home_admin_hr'),
-    path('home_user/', views.home_user, name='home_user'),  # Ensure this line exists
+    path('home_user/', views.home_user, name='home_user'),
     path('onboarding/', views.onboarding, name='onboarding'),
     path('onboarding_submission_overview/', views.onboarding_submission_overview, name='onboarding_submission_overview'),
     path('new_onboarding/', views.new_onboarding, name='new_onboarding'),
@@ -16,15 +16,14 @@ urlpatterns = [
     path('delete_offboarding/', views.delete_offboarding, name='delete_offboarding'),
     path('loa_admin_hr/', views.loa_admin_hr, name='loa_admin_hr'),
     path('loa_submission_overview_admin_hr/', views.loa_submission_overview_admin_hr, name='loa_submission_overview_admin_hr'),
-    path('loa_create_admin_hr/', views.loa_create_admin_hr, name='loa_create_admin_hr'),
+    path('loa_create/', views.loa_create, name='loa_create'), # This line is crucial
     path('loa_user/', views.loa_user, name='loa_user'),
     path('loa_submission_overview_user/', views.loa_submission_overview_user, name='loa_submission_overview_user'),
-    path('loa_create_user/', views.loa_create_user, name='loa_create_user'),
     path('loa_edit_user/<int:id>/', views.loa_edit_user, name='loa_edit_user'),
     path('loa_delete_user/<int:id>/', views.loa_delete_user, name='loa_delete_user'),
     path('settings/', views.settings, name='settings'),
     path('configuration/', views.configuration, name='configuration'),
     path('home_it/', views.home_it, name='home_it'),
-    path('backup_now/', views.backup_now, name='backup_now'),                # New URL
-    path('restore_from_backup/', views.restore_from_backup, name='restore_from_backup'), 
+    path('backup_now/', views.backup_now, name='backup_now'),
+    path('restore_from_backup/', views.restore_from_backup, name='restore_from_backup'),
 ]

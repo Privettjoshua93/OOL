@@ -353,17 +353,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 @login_required
-@user_passes_test(lambda u: is_admin(u) or is_approver(u) or is_it(u))
-def loa_create_admin_hr(request):
+@user_passes_test(lambda user: is_user(user) or is_approver(user) or is_it(user) or is_admin(user))
+def loa_create(request):
     if request.method == 'POST':
         form = LOAForm(request.POST)
         if form.is_valid():
             loa = form.save(commit=False)
             loa.user = request.user
             loa.save()
-            # Notify approver users via email
-            approver_emails = get_user_emails_by_group('Approver')
-            recipient_list = approver_emails + [loa.user.email]  # Both approver and submitter
+            recipient_list = get_user_emails_by_group('Approver') + [loa.user.email] # Notify approvers and the current user
             details_dict = {
                 'First Name': loa.user.first_name,
                 'Last Name': loa.user.last_name,
@@ -376,10 +374,13 @@ def loa_create_admin_hr(request):
                 details_dict,
                 recipient_list
             )
-            return redirect('loa_admin_hr')
+            if is_admin(request.user) or is_approver(request.user) or is_it(request.user):
+                return redirect('loa_admin_hr')
+            else:
+                return redirect('loa_user')
     else:
         form = LOAForm()
-    return render(request, 'loa_create_admin_hr.html', {'form': form})
+    return render(request, 'loa_create.html', {'form': form})
 
 @login_required
 @user_passes_test(is_user)
@@ -742,3 +743,5 @@ def restore_from_backup(request):
     except Exception as e:
         logger.error(f"Error during restore: {e}")
         return HttpResponse(f"Error during restore: {e}", status=500)
+    
+
