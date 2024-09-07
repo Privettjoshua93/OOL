@@ -16,7 +16,7 @@ urlpatterns = [
     path('delete_offboarding/', views.delete_offboarding, name='delete_offboarding'),
     path('loa_admin_hr/', views.loa_admin_hr, name='loa_admin_hr'),
     path('loa_submission_overview_admin_hr/', views.loa_submission_overview_admin_hr, name='loa_submission_overview_admin_hr'),
-    path('loa_create/', views.loa_create, name='loa_create'), # This line is crucial
+    path('loa_create/', views.loa_create, name='loa_create'),
     path('loa_user/', views.loa_user, name='loa_user'),
     path('loa_submission_overview_user/', views.loa_submission_overview_user, name='loa_submission_overview_user'),
     path('loa_edit_user/<int:id>/', views.loa_edit_user, name='loa_edit_user'),
@@ -26,4 +26,5 @@ urlpatterns = [
     path('home_it/', views.home_it, name='home_it'),
     path('backup_now/', views.backup_now, name='backup_now'),
     path('restore_from_backup/', views.restore_from_backup, name='restore_from_backup'),
+    path('sync_users/', views.sync_users, name='sync_users'),  # New URL pattern for syncing users
 ]

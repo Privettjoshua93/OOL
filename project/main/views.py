@@ -16,6 +16,7 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 from django.http import HttpResponse
+from django.core.management import call_command
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -745,3 +746,8 @@ def restore_from_backup(request):
         return HttpResponse(f"Error during restore: {e}", status=500)
     
 
+@login_required
+@user_passes_test(is_it)  # Assuming only IT users can sync users
+def sync_users(request):
+    call_command('sync_azure_users')
+    return redirect('settings')
