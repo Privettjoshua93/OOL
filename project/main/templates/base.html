@@ -2,14 +2,41 @@
 <html>
 <head>
     <title>My App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #008080; /* Forest Green */
+            margin: 0;
+            padding: 20px;
+        }
+        a {
+            color: #003535; /* Dark Brown */
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .header {
+            background-color: #005959; /* Darker forest green */
+            padding: 10px;
+            text-align: right;
+        }
+        .header p {
+            display: inline;
+        }
+    </style>
 </head>
 <body>
-    {% if user.is_authenticated %}
-        <p>Welcome, {{ user.username }}</p>
-        <a href="{% url 'account_logout' %}">Logout</a>
-    {% else %}
-        <a href="{% url 'social:begin' 'azuread-tenant-oauth2' %}?auth_entry=login">Login with Azure AD</a>
-    {% endif %}
+    <div class="header">
+        {% if user.is_authenticated %}
+            <p>Welcome, {{ user.username }}</p>
+            <a href="{% url 'account_logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'social:begin' 'azuread-tenant-oauth2' %}?auth_entry=login">Login with Azure AD</a>
+        {% endif %}
+    </div>
     {% block content %}{% endblock %}
 </body>
 </html>

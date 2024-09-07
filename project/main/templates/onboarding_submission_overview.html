@@ -1,20 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Onboarding Submission Overview</title>
+    <title>Onboarding Submission Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #008080; /* Forest Green */
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+        }
+        form {
+            background-color: #005959; /* Darker forest green */
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd; 
+            border-radius: 5px;
+        }
+        button {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #002424;
+        }
+    </style>
 </head>
 <body>
-<h1>Onboarding Submission Overview</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <label for="status">Status:</label>
-    <select name="status">
-        <option value="Pending" {% if form.instance.status == "Pending" %}selected{% endif %}>Pending</option>
-        <option value="Complete" {% if form.instance.status == "Complete" %}selected{% endif %}>Complete</option>
-    </select>
-    <button type="submit">Save</button>
-</form>
-<a href="{% url 'onboarding' %}"><button type="button">Back</button></a>
+    <h1>Onboarding Submission Overview</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <label for="status">Status:</label>
+        <select name="status">
+            <option value="Pending" {% if form.instance.status == "Pending" %}selected{% endif %}>Pending</option>
+            <option value="Complete" {% if form.instance.status == "Complete" %}selected{% endif %}>Complete</option>
+        </select>
+        <button type="submit">Save</button>
+    </form>
+    <a href="{% url 'onboarding' %}"><button type="button">Back</button></a>
 </body>
 </html>

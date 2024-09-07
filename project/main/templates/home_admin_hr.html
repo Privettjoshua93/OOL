@@ -1,12 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Home Admin/HR</title>
+    <title>Home Admin/HR</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #008080; /* Forest Green */
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: white;
+        }
+        button {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #002424;
+        }
+        a {
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-<h1>Home Admin/HR</h1>
-<a href="{% url 'onboarding' %}"><button>Onboarding</button></a>
-<a href="{% url 'offboarding' %}"><button>Offboarding</button></a>
-<a href="{% url 'loa_admin_hr' %}"><button>Leave of Absence</button></a>
+    <h1>Home Admin/HR</h1>
+    <a href="{% url 'onboarding' %}"><button>Onboarding</button></a>
+    <a href="{% url 'offboarding' %}"><button>Offboarding</button></a>
+    <a href="{% url 'loa_admin_hr' %}"><button>Leave of Absence</button></a>
 </body>
 </html>

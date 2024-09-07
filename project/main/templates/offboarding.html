@@ -1,48 +1,103 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Offboarding</title>
+    <title>Offboarding</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #008080; /* Forest Green */
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+        }
+        form, table {
+            background-color: #005959; /* Darker forest green */
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            width: 100%;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd; 
+            border-radius: 5px;
+        }
+        button {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #002424;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+        }
+    </style>
 </head>
 <body>
-<h1>Offboarding</h1>
-<a href="{% url 'new_offboarding' %}"><button>Create New</button></a>
-<a href="{% url 'home_admin_hr' %}"><button>Back</button></a>
-<form method="get" action="{% url 'offboarding' %}">
-    <input type="text" name="q" placeholder="Search..." value="{{ query }}">
-    <label for="sort_by">Sort by:</label>
-    <select name="sort_by">
-        <option value="last_date_time_desc" {% if sort_by == 'last_date_time_desc' %}selected{% endif %}>Last Date/Time (Newest first)</option>
-        <option value="last_date_time_asc" {% if sort_by == 'last_date_time_asc' %}selected{% endif %}>Last Date/Time (Oldest first)</option>
-    </select>
-    <label for="status_filter">Status:</label>
-    <select name="status_filter">
-        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
-        <option value="complete" {% if status_filter == 'complete' %}selected{% endif %}>Complete</option>
-        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
-    </select>
-    <button type="submit">Search</button>
-</form>
-<table>
-<tr>
-<th>First Name</th>
-<th>Last Name</th>
-<th>Last Date/Time</th>
-<th>Status</th>
-<th>Actions</th>
-</tr>
-{% for offboarding in offboardings %}
-<tr>
-<td>{{ offboarding.first_name }}</td>
-<td>{{ offboarding.last_name }}</td>
-<td>{{ offboarding.last_date_time }}</td>
-<td>{{ offboarding.status }}</td>
-<td>
-<a href="{% url 'offboarding_submission_overview' %}?id={{ offboarding.id }}"><button>View</button></a>
-<a href="{% url 'edit_offboarding' %}?id={{ offboarding.id }}"><button>Edit</button></a>
-<a href="{% url 'delete_offboarding' %}?id={{ offboarding.id }}"><button>Delete</button></a>
-</td>
-</tr>
-{% endfor %}
-</table>
+    <h1>Offboarding</h1>
+    <a href="{% url 'new_offboarding' %}"><button>Create New</button></a>
+    <a href="{% url 'home_admin_hr' %}"><button>Back</button></a>
+    <form method="get" action="{% url 'offboarding' %}">
+        <input type="text" name="q" placeholder="Search..." value="{{ query }}">
+        <label for="sort_by">Sort by:</label>
+        <select name="sort_by">
+            <option value="last_date_time_desc" {% if sort_by == 'last_date_time_desc' %}selected{% endif %}>Last Date/Time (Newest first)</option>
+            <option value="last_date_time_asc" {% if sort_by == 'last_date_time_asc' %}selected{% endif %}>Last Date/Time (Oldest first)</option>
+        </select>
+        <label for="status_filter">Status:</label>
+        <select name="status_filter">
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="complete" {% if status_filter == 'complete' %}selected{% endif %}>Complete</option>
+            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
+        </select>
+        <button type="submit">Search</button>
+    </form>
+    <table>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Last Date/Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for offboarding in offboardings %}
+        <tr>
+            <td>{{ offboarding.first_name }}</td>
+            <td>{{ offboarding.last_name }}</td>
+            <td>{{ offboarding.last_date_time }}</td>
+            <td>{{ offboarding.status }}</td>
+            <td>
+                <a href="{% url 'offboarding_submission_overview' %}?id={{ offboarding.id }}"><button>View</button></a>
+                <a href="{% url 'edit_offboarding' %}?id={{ offboarding.id }}"><button>Edit</button></a>
+                <a href="{% url 'delete_offboarding' %}?id={{ offboarding.id }}"><button>Delete</button></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>

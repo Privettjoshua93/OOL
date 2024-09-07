@@ -1,13 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>LOA Submission Overview User</title>
+    <title>LOA Submission Overview User</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #008080; /* Forest Green */
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+        }
+        button {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #002424;
+        }
+    </style>
 </head>
 <body>
-<h1>LOA Submission Overview User</h1>
-<p>Start Date: {{ loa.start_date }}</p>
-<p>End Date: {{ loa.end_date }}</p>
-<p>Status: {{ loa.status }}</p>
-<a href="{% url 'loa_user' %}"><button type="button">Back</button></a>
+    <h1>LOA Submission Overview User</h1>
+    <p>Start Date: {{ loa.start_date }}</p>
+    <p>End Date: {{ loa.end_date }}</p>
+    <p>Status: {{ loa.status }}</p>
+    <a href="{% url 'loa_user' %}"><button type="button">Back</button></a>
 </body>
 </html>

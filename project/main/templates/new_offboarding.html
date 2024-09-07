@@ -1,30 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>New Offboarding</title>
+    <title>New Offboarding</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #008080; /* Forest Green */
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+        }
+        form {
+            background-color: #005959; /* Darker forest green */
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="datetime-local"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd; 
+            border-radius: 5px;
+        }
+        button {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #002424;
+        }
+    </style>
 </head>
 <body>
-<h1>New Offboarding</h1>
-<form method="post">
-{% csrf_token %}
-<p>
-<label for="first_name">First Name:</label>
-<input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
-</p>
-<p>
-<label for="last_name">Last Name:</label>
-<input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
-</p>
-<p>
-<label for="last_date_time">Last Date/Time:</label>
-<input type="datetime-local" name="last_date_time" value="{{ form.last_date_time.value|default:'' }}" required>
-</p>
-<p>
-<label for="additional_notes">Additional Notes:</label>
-<textarea name="additional_notes" rows="4" required>{{ form.additional_notes.value|default:'' }}</textarea>
-</p>
-<button type="submit">Submit</button>
-</form>
-<a href="{% url 'offboarding' %}"><button type="button">Back</button></a>
+    <h1>New Offboarding</h1>
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <label for="first_name">First Name:</label>
+            <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
+        </p>
+        <p>
+            <label for="last_name">Last Name:</label>
+            <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
+        </p>
+        <p>
+            <label for="last_date_time">Last Date/Time:</label>
+            <input type="datetime-local" name="last_date_time" value="{{ form.last_date_time.value|default:'' }}" required>
+        </p>
+        <p>
+            <label for="additional_notes">Additional Notes:</label>
+            <textarea name="additional_notes" rows="4" required>{{ form.additional_notes.value|default:'' }}</textarea>
+        </p>
+        <button type="submit">Submit</button>
+    </form>
+    <a href="{% url 'offboarding' %}"><button type="button">Back</button></a>
 </body>
 </html>

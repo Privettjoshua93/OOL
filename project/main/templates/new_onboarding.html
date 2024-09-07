@@ -1,15 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>New Onboarding</title>
+    <title>New Onboarding</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #008080; /* Forest Green */
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+        }
+        form {
+            background-color: #005959; /* Darker forest green */
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        button {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #002424;
+        }
+    </style>
 </head>
 <body>
-<h1>New Onboarding</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit</button>
-</form>
-<a href="{% url 'home_admin_hr' %}"><button type="button">Back</button></a>
+    <h1>New Onboarding</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+    <a href="{% url 'home_admin_hr' %}"><button type="button">Back</button></a>
 </body>
 </html>

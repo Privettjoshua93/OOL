@@ -1,31 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Offboarding Submission Overview</title>
+    <title>Offboarding Submission Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #008080; /* Forest Green */
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+        }
+        form {
+            background-color: #005959; /* Darker forest green */
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+        }
+        button {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #002424;
+        }
+    </style>
 </head>
 <body>
-<h1>Offboarding Submission Overview</h1>
-<form method="post">
-{% csrf_token %}
-<table>
-<tr>
-<td><b>First Name:</b></td><td>{{ form.first_name }}</td>
-</tr>
-<tr>
-<td><b>Last Name:</b></td><td>{{ form.last_name }}</td>
-</tr>
-<tr>
-<td><b>Last Date/Time:</b></td><td>{{ form.last_date_time }}</td>
-</tr>
-<tr>
-<td><b>Additional Notes:</b></td><td>{{ form.additional_notes }}</td>
-</tr>
-<tr>
-<td><b>Status:</b></td><td>{{ form.status }}</td>
-</tr>
-</table>
-<button type="submit">Save</button>
-</form>
-<a href="{% url 'offboarding' %}"><button type="button">Back</button></a>
+    <h1>Offboarding Submission Overview</h1>
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td><b>First Name:</b></td><td>{{ form.first_name }}</td>
+            </tr>
+            <tr>
+                <td><b>Last Name:</b></td><td>{{ form.last_name }}</td>
+            </tr>
+            <tr>
+                <td><b>Last Date/Time:</b></td><td>{{ form.last_date_time }}</td>
+            </tr>
+            <tr>
+                <td><b>Additional Notes:</b></td><td>{{ form.additional_notes }}</td>
+            </tr>
+            <tr>
+                <td><b>Status:</b></td><td>{{ form.status }}</td>
+            </tr>
+        </table>
+        <button type="submit">Save</button>
+    </form>
+    <a href="{% URL 'offboarding' %}"><button type="button">Back</button></a>
 </body>
 </html>

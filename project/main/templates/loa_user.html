@@ -1,47 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Leave of Absence User</title>
+    <title>Leave of Absence User</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #008080; /* Forest Green */
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+        }
+        form, table {
+            background-color: #005959; /* Darker forest green */
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            width: 100%;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd; 
+            border-radius: 5px;
+        }
+        button {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #002424;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+        }
+    </style>
 </head>
 <body>
-<h1>Leave of Absence User</h1>
-<form method="get" action="{% url 'loa_user' %}">
-    <input type="text" name="q" placeholder="Search..." value="{{ query }}">
-    <label for="sort_by">Sort by:</label>
-    <select name="sort_by">
-        <option value="start_date_desc" {% if sort_by == 'start_date_desc' %}selected{% endif %}>Start Date (Newest first)</option>
-        <option value="start_date_asc" {% if sort_by == 'start_date_asc' %}selected{% endif %}>Start Date (Oldest first)</option>
-    </select>
-    <label for="status_filter">Status:</label>
-    <select name="status_filter">
-        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
-        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
-        <option value="denied" {% if status_filter == 'denied' %}selected{% endif %}>Denied</option>
-        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
-    </select>
-    <button type="submit">Search</button>
-    <a href="{% url 'loa_create' %}"><button type="button">Create New</button></a> <!-- Updated this line -->
-    <a href="{% url 'home_user' %}"><button type="button">Back</button></a>
-</form>
-<table>
-<tr>
-<th>Start Date</th>
-<th>End Date</th>
-<th>Status</th>
-<th>Actions</th>
-</tr>
-{% for loa in loas %}
-<tr>
-<td>{{ loa.start_date }}</td>
-<td>{{ loa.end_date }}</td>
-<td>{{ loa.status }}</td>
-<td>
-<a href="{% url 'loa_submission_overview_user' %}?id={{ loa.id }}"><button>View</button></a>
-<a href="{% url 'loa_edit_user' loa.id %}"><button>Edit</button></a>
-<a href="{% url 'loa_delete_user' loa.id %}"><button>Delete</button></a>
-</td>
-</tr>
-{% endfor %}
-</table>
+    <h1>Leave of Absence User</h1>
+    <form method="get" action="{% url 'loa_user' %}">
+        <input type="text" name="q" placeholder="Search..." value="{{ query }}">
+        <label for="sort_by">Sort by:</label>
+        <select name="sort_by">
+            <option value="start_date_desc" {% if sort_by == 'start_date_desc' %}selected{% endif %}>Start Date (Newest first)</option>
+            <option value="start_date_asc" {% if sort_by == 'start_date_asc' %}selected{% endif %}>Start Date (Oldest first)</option>
+        </select>
+        <label for="status_filter">Status:</label>
+        <select name="status_filter">
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+            <option value="denied" {% if status_filter == 'denied' %}selected{% endif %}>Denied</option>
+            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
+        </select>
+        <button type="submit">Search</button>
+        <a href="{% url 'loa_create' %}"><button type="button">Create New</button></a>
+        <a href="{% url 'home_user' %}"><button type="button">Back</button></a>
+    </form>
+    <table>
+        <tr>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for loa in loas %}
+        <tr>
+            <td>{{ loa.start_date }}</td>
+            <td>{{ loa.end_date }}</td>
+            <td>{{ loa.status }}</td>
+            <td>
+                <a href="{% url 'loa_submission_overview_user' %}?id={{ loa.id }}"><button>View</button></a>
+                <a href="{% url 'loa_edit_user' loa.id %}"><button>Edit</button></a>
+                <a href="{% url 'loa_delete_user' loa.id %}"><button>Delete</button></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>

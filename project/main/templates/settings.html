@@ -2,51 +2,108 @@
 <html>
 <head>
     <title>Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #008080; /* Forest Green */
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+        }
+        form {
+            background-color: #005959; /* Darker forest green */
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="password"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd; 
+            border-radius: 5px;
+        }
+        input[type="checkbox"] {
+            margin-top: 5px;
+        }
+        button {
+            background-color: #003535; /* Dark Brown */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #002424;
+        }
+    </style>
 </head>
 <body>
     <h1>Settings</h1>
     <form method="post">
         {% csrf_token %}
-        <p><label for="client_id">Client ID:</label>
-        <input type="text" name="client_id" required value="{{ form.client_id.value|default:'' }}"></p>
-        <p><label for="tenant_id">Tenant ID:</label>
-        <input type="text" name="tenant_id" required value="{{ form.tenant_id.value|default:'' }}"></p>
-        <p><label for="client_secret">Client Secret:</label>
-        <input type="password" name="client_secret" required value="{{ form.client_secret.value|default:'' }}"></p>
-        <p><label for="smtp_host">SMTP Host:</label>
-        <input type="text" name="smtp_host" required value="{{ form.smtp_host.value|default:'' }}"></p>
-        <p><label for="smtp_port">SMTP Port:</label>
-        <input type="number" name="smtp_port" required value="{{ form.smtp_port.value|default:'' }}"></p>
-        <p><label for="smtp_user">SMTP User:</label>
-        <input type="text" name="smtp_user" required value="{{ form.smtp_user.value|default:'' }}"></p>
-        <p><label for="smtp_password">SMTP Password:</label>
-        <input type="password" name="smtp_password" required value="{{ form.smtp_password.value|default:'' }}"></p>
-        <p><label for="key_identifier">Key Identifier:</label>
-        <input type="text" name="key_identifier" required value="{{ form.key_identifier.value|default:'' }}"></p>
-        <!-- New fields for Azure Blob Storage -->
-        <p><label for="storage_account_name">Storage Account Name:</label>
-        <input type="text" name="storage_account_name" required value="{{ form.storage_account_name.value|default:'' }}"></p>
-        <p><label for="container_name">Container Name:</label>
-        <input type="text" name="container_name" required value="{{ form.container_name.value|default:'' }}"></p>
-        <p><label for="email_use_tls">Use TLS:</label>
-        <input type="checkbox" name="email_use_tls" {% if form.email_use_tls.value %}checked{% endif %}></p>
-        <p><label for="email_use_ssl">Use SSL:</label>
-        <input type="checkbox" name="email_use_ssl" {% if form.email_use_ssl.value %}checked{% endif %}></p>
+        <label for="client_id">Client ID:</label>
+        <input type="text" name="client_id" required value="{{ form.client_id.value|default:'' }}">
+        
+        <label for="tenant_id">Tenant ID:</label>
+        <input type="text" name="tenant_id" required value="{{ form.tenant_id.value|default:'' }}">
+        
+        <label for="client_secret">Client Secret:</label>
+        <input type="password" name="client_secret" required value="{{ form.client_secret.value|default:'' }}">
+        
+        <label for="smtp_host">SMTP Host:</label>
+        <input type="text" name="smtp_host" required value="{{ form.smtp_host.value|default:'' }}">
+        
+        <label for="smtp_port">SMTP Port:</label>
+        <input type="number" name="smtp_port" required value="{{ form.smtp_port.value|default:'' }}">
+        
+        <label for="smtp_user">SMTP User:</label>
+        <input type="text" name="smtp_user" required value="{{ form.smtp_user.value|default:'' }}">
+        
+        <label for="smtp_password">SMTP Password:</label>
+        <input type="password" name="smtp_password" required value="{{ form.smtp_password.value|default:'' }}">
+        
+        <label for="key_identifier">Key Identifier:</label>
+        <input type="text" name="key_identifier" required value="{{ form.key_identifier.value|default:'' }}">
+        
+        <label for="storage_account_name">Storage Account Name:</label>
+        <input type="text" name="storage_account_name" required value="{{ form.storage_account_name.value|default:'' }}">
+        
+        <label for="container_name">Container Name:</label>
+        <input type="text" name="container_name" required value="{{ form.container_name.value|default:'' }}">
+        
+        <label for="email_use_tls">Use TLS:</label>
+        <input type="checkbox" name="email_use_tls" {% if form.email_use_tls.value %}checked{% endif %}>
+        
+        <label for="email_use_ssl">Use SSL:</label>
+        <input type="checkbox" name="email_use_ssl" {% if form.email_use_ssl.value %}checked{% endif %}>
+        
         <button type="submit">Validate Key Then Establish Encryption</button>
     </form>
-    <!-- Buttons for backup, restore and sync users -->
-    <form method="post" action="{% url 'backup_now' %}">
-        {% csrf_token %}
-        <button type="submit">Backup Now</button>
-    </form>
-    <form method="post" action="{% url 'restore_from_backup' %}">
-        {% csrf_token %}
-        <button type="submit">Restore from Latest Backup</button>
-    </form>
-    <form method="post" action="{% url 'sync_users' %}">
-        {% csrf_token %}
-        <button type="submit">Sync Users</button>
-    </form>
-    <a href="{% url 'home_it' %}"><button type="button">Back</button></a>
+    
+    <div>
+        <form method="post" action="{% url 'backup_now' %}">
+            {% csrf_token %}
+            <button type="submit">Backup Now</button>
+        </form>
+        <form method="post" action="{% url 'restore_from_backup' %}">
+            {% csrf_token %}
+            <button type="submit">Restore from Latest Backup</button>
+        </form>
+        <form method="post" action="{% url 'sync_users' %}">
+            {% csrf_token %}
+            <button type="submit">Sync Users</button>
+        </form>
+        <a href="{% url 'home_it' %}"><button type="button">Back</button></a>
+    </div>
 </body>
 </html>
