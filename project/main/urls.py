@@ -24,5 +24,7 @@ urlpatterns = [
     path('loa_delete_user/<int:id>/', views.loa_delete_user, name='loa_delete_user'),
     path('settings/', views.settings, name='settings'),
     path('configuration/', views.configuration, name='configuration'),
-    path('home_it/', views.home_it, name='home_it')
+    path('home_it/', views.home_it, name='home_it'),
+    path('backup_now/', views.backup_now, name='backup_now'),                # New URL
+    path('restore_from_backup/', views.restore_from_backup, name='restore_from_backup'), 
 ]

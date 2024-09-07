@@ -13,7 +13,8 @@ from azure.identity import ClientSecretCredential
 from azure.keyvault.keys import KeyClient
 import base64
 from django.http import JsonResponse
-
+from django.http import HttpResponse
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -684,3 +685,63 @@ def fetch_encryption_key_from_vault(key_identifier, client_id, client_secret, te
         return encryption_key
     except Exception as e:
         raise ValueError("Failed to fetch key from Azure Key Vault") from e
+    
+
+@login_required
+@user_passes_test(is_it)
+def backup_now(request):
+    try:
+        credentials = AzureCredentials.objects.first()
+        if not credentials:
+            return HttpResponse("No Azure Credentials found", status=400)
+        
+        blob_service_client = BlobServiceClient(
+            account_url=f"https://{credentials.storage_account_name}.blob.core.windows.net",
+            credential=ClientSecretCredential(
+                client_id=credentials.client_id,
+                client_secret=credentials.client_secret,
+                tenant_id=credentials.tenant_id
+            )
+        )
+        container_client = blob_service_client.get_container_client(credentials.container_name)
+        
+        blob_client = container_client.get_blob_client("db_backup.sqlite3")
+
+        with open('db.sqlite3', 'rb') as data:
+            blob_client.upload_blob(data, overwrite=True)
+
+        return HttpResponse("Backup Successful", status=200)
+
+    except Exception as e:
+        logger.error(f"Error during backup: {e}")
+        return HttpResponse(f"Error during backup: {e}", status=500)
+
+@login_required
+@user_passes_test(is_it)
+def restore_from_backup(request):
+    try:
+        credentials = AzureCredentials.objects.first()
+        if not credentials:
+            return HttpResponse("No Azure Credentials found", status=400)
+        
+        blob_service_client = BlobServiceClient(
+            account_url=f"https://{credentials.storage_account_name}.blob.core.windows.net",
+            credential=ClientSecretCredential(
+                client_id=credentials.client_id,
+                client_secret=credentials.client_secret,
+                tenant_id=credentials.tenant_id
+            )
+        )
+        container_client = blob_service_client.get_container_client(credentials.container_name)
+        
+        blob_client = container_client.get_blob_client("db_backup.sqlite3")
+
+        with open('db.sqlite3', 'wb') as data:
+            download_stream = blob_client.download_blob()
+            data.write(download_stream.readall())
+
+        return HttpResponse("Restore Successful", status=200)
+
+    except Exception as e:
+        logger.error(f"Error during restore: {e}")
+        return HttpResponse(f"Error during restore: {e}", status=500)

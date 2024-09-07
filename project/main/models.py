@@ -111,7 +111,9 @@ class AzureCredentials(models.Model):
     smtp_port = models.PositiveIntegerField(default=587)
     smtp_user = models.CharField(max_length=100, default='user@example.com')
     smtp_password = models.CharField(max_length=100, default='password')
-    key_identifier = models.CharField(max_length=200, default='https://example.vault.azure.net/keys/placeholderkey/00000000000000000000000000000000')
+    key_identifier = models.CharField(max_length=200, help_text="URL of the key in Azure Key Vault")
+    storage_account_name = models.CharField(max_length=100, default='default_storage_account', help_text="Azure Storage Account Name")
+    container_name = models.CharField(max_length=100, default='default_container', help_text="Azure Blob Storage Container Name")
 
     def __str__(self):
         return self.client_id
