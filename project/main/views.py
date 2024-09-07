@@ -9,6 +9,11 @@ from django.urls import reverse
 from .utils import get_user_emails_by_group, send_email
 import requests
 from datetime import date, datetime
+from azure.identity import ClientSecretCredential
+from azure.keyvault.keys import KeyClient
+import base64
+from django.http import JsonResponse
+
 
 # Helper Functions for Access Control
 def is_admin(user):
@@ -517,19 +522,28 @@ def settings(request):
     if request.method == 'POST':
         form = AzureCredentialsForm(request.POST)
         if form.is_valid():
-            AzureCredentials.objects.all().delete()  # Remove existing credentials
-            form.save()
-            update_social_auth_backend()  # Update the backend with new credentials
-            return redirect('home_it')
-    else:
-        credentials = AzureCredentials.objects.first()
-        if credentials:
-            form = AzureCredentialsForm(instance=credentials)
-        else:
-            form = AzureCredentialsForm()
+            try:
+                # Validate and fetch the encryption key
+                key_identifier = form.cleaned_data['key_identifier']
+                client_id = form.cleaned_data['client_id']
+                client_secret = form.cleaned_data['client_secret']
+                tenant_id = form.cleaned_data['tenant_id']
+                encryption_key = fetch_encryption_key_from_vault(key_identifier, client_id, client_secret, tenant_id)
 
-    # Ensure backend is updated before render ensuring decrypt email configurations
-    update_social_auth_backend()
+                # Save credentials to the database
+                AzureCredentials.objects.all().delete() 
+                form.save()
+                
+                # Update the settings with the fetched encryption key
+                settings.FIELD_ENCRYPTION_KEY = encryption_key
+
+                return redirect('home_it')
+            except Exception as e:
+                form.add_error(None, str(e)) 
+    else:
+        credentials = AzureCredentials.objects.first()    
+        form = AzureCredentialsForm(instance=credentials) if credentials else AzureCredentialsForm()
+
     return render(request, 'settings.html', {'form': form})
 
 @login_required
@@ -644,3 +658,29 @@ def serialize_field_data(fields_queryset, cleaned_data):
             field_value = field_value.isoformat()  # Serialize date and datetime fields to string
         field_data[field.label] = field_value
     return field_data
+
+def fetch_encryption_key_from_vault(key_identifier, client_id, client_secret, tenant_id):
+    try:
+        parts = key_identifier.split('/')
+        vault_url = 'https://' + parts[2]
+        key_name = parts[4]
+        key_version = parts[5] if len(parts) > 5 else ""
+
+        credential = ClientSecretCredential(
+            client_id=client_id,
+            client_secret=client_secret,
+            tenant_id=tenant_id,
+        )
+
+        key_client = KeyClient(vault_url=vault_url, credential=credential)
+        key = key_client.get_key(key_name, key_version) if key_version else key_client.get_key(key_name)
+        
+        key_value = key.key.n if hasattr(key.key, 'n') else None
+        if not key_value:
+            raise ValueError("Expected RSA key with a valid 'n' attribute")
+
+        key_bytes = key_value
+        encryption_key = base64.urlsafe_b64encode(key_bytes[:32]).decode('utf-8')
+        return encryption_key
+    except Exception as e:
+        raise ValueError("Failed to fetch key from Azure Key Vault") from e

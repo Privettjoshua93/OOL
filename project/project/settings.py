@@ -155,7 +155,7 @@ SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY = ""
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = ""
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = ""
 
-FIELD_ENCRYPTION_KEY = 'zKfQiYgvDe1_MCrITwZBWXVQhgTZm9F2Q0FZbOmZVsM='
+FIELD_ENCRYPTION_KEY = 'zKfQiYgvDe1_MCrITwZBWXVQhgTZm9F2Q0FZbOmZVaM='
 
 # Add necessary allauth settings
 ACCOUNT_EMAIL_VERIFICATION = "none"
@@ -178,3 +178,5 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 )
+
+

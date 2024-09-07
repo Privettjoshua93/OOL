@@ -21,12 +21,13 @@
         <input type="text" name="smtp_user" required value="{{ form.smtp_user.value|default:'' }}"></p>
         <p><label for="smtp_password">SMTP Password:</label>
         <input type="password" name="smtp_password" required value="{{ form.smtp_password.value|default:'' }}"></p>
-        <!-- Add these fields -->
+        <p><label for="key_identifier">Key Identifier:</label>
+        <input type="text" name="key_identifier" required value="{{ form.key_identifier.value|default:'' }}"></p>
         <p><label for="email_use_tls">Use TLS:</label>
         <input type="checkbox" name="email_use_tls" {% if form.email_use_tls.value %}checked{% endif %}></p>
         <p><label for="email_use_ssl">Use SSL:</label>
         <input type="checkbox" name="email_use_ssl" {% if form.email_use_ssl.value %}checked{% endif %}></p>
-        <button type="submit">Save</button>
+        <button type="submit">Validate Key Then Establish Encryption</button>  <!-- Updated button text -->
     </form>
     <a href="{% url 'home_it' %}"><button type="button">Back</button></a>
 </body>

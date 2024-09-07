@@ -104,13 +104,14 @@ class LOA(models.Model):
         return f'{self.user.username} - {self.status}'
 
 class AzureCredentials(models.Model):
-    client_id = EncryptedCharField(max_length=100)
-    tenant_id = EncryptedCharField(max_length=100)
-    client_secret = EncryptedCharField(max_length=100)
-    smtp_host = models.CharField(max_length=100, default='smtp.example.com')  # add default
-    smtp_port = models.PositiveIntegerField(default=587)  # add default
-    smtp_user = models.CharField(max_length=100, default='user@example.com')  # add default
-    smtp_password = EncryptedCharField(max_length=100, default='password')  # add default
+    client_id = models.CharField(max_length=100)
+    tenant_id = models.CharField(max_length=100)
+    client_secret = models.CharField(max_length=100)
+    smtp_host = models.CharField(max_length=100, default='smtp.example.com')
+    smtp_port = models.PositiveIntegerField(default=587)
+    smtp_user = models.CharField(max_length=100, default='user@example.com')
+    smtp_password = models.CharField(max_length=100, default='password')
+    key_identifier = models.CharField(max_length=200, default='https://example.vault.azure.net/keys/placeholderkey/00000000000000000000000000000000')
 
     def __str__(self):
         return self.client_id

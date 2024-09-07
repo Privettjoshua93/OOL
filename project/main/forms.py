@@ -24,11 +24,13 @@ class LOAAdminForm(forms.ModelForm):
 class AzureCredentialsForm(forms.ModelForm):
     email_use_tls = forms.BooleanField(required=False)
     email_use_ssl = forms.BooleanField(required=False)
+    
     class Meta:
         model = AzureCredentials
         fields = [
             'client_id', 'tenant_id', 'client_secret',
             'smtp_host', 'smtp_port', 'smtp_user', 'smtp_password',
+            'key_identifier', 
             'email_use_tls', 'email_use_ssl'
         ]
 
