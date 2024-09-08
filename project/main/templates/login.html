@@ -14,24 +14,30 @@
             align-items: center;
             height: 100vh;
         }
-        h2 {
-            color: white;
-        }
         form {
             background-color: #005959; /* Darker forest green */
-            padding: 20px;
+            padding: 30px; /* Increased padding for better layout */
             border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        h2 {
+            color: white;
+            margin-bottom: 20px;
         }
         label {
             display: block;
             margin-top: 10px;
+            text-align: left;
         }
         input[type="text"], input[type="password"] {
             width: 100%;
             padding: 8px;
             margin-top: 5px;
-            border: 1px solid #ddd; 
+            border: 1px solid #ddd;
             border-radius: 5px;
+            box-sizing: border-box;
         }
         button {
             background-color: #003535; /* Dark Brown */
@@ -41,32 +47,40 @@
             margin-top: 15px;
             cursor: pointer;
             border-radius: 5px;
+            width: 100%;
         }
         button:hover {
             background-color: #002424;
         }
+        .login-options {
+            margin-top: 20px;
+        }
+        .login-options a {
+            text-decoration: none;
+            display: block;
+            margin-top: 10px;
+        }
+        .login-options a button {
+            background-color: #003535; /* Dark Brown */
+        }
     </style>
 </head>
 <body>
-    <h2>Login</h2>
     <form method="post" action="{% url 'login' %}">
+        <h2>Login</h2>
         {% csrf_token %}
         <input type="hidden" name="next" value="{% url 'login_redirect' %}">
-        <p>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-        </p>
-        <p>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </p>
-        <p>
-            <button type="submit">Sign in</button>
-        </p>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Sign in</button>
+        <div class="login-options">
+            <h2>OR</h2>
+            <a href="{% url 'social:begin' 'azuread-tenant-oauth2' %}">
+                <button type="button">Sign in with Microsoft</button>
+            </a>
+        </div>
     </form>
-    <h2>OR</h2>
-    <a href="{% url 'social:begin' 'azuread-tenant-oauth2' %}">
-        <button type="button">Sign in with Microsoft</button>
-    </a>
 </body>
 </html>

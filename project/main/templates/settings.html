@@ -9,32 +9,44 @@
             background-color: #008080; /* Forest Green */
             margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
         }
         h1 {
             color: white;
+            text-align: center;
         }
-        form {
+        .form-container {
             background-color: #005959; /* Darker forest green */
             padding: 20px;
             border-radius: 10px;
-            display: inline-block;
+            max-width: 500px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 20px;
         }
-        label {
+        .form-container label {
             display: block;
             margin-top: 10px;
         }
-        input[type="text"], input[type="password"], input[type="number"] {
+        .form-container input[type="text"], 
+        .form-container input[type="password"], 
+        .form-container input[type="number"] {
             width: 100%;
             padding: 8px;
             margin-top: 5px;
-            border: 1px solid #ddd; 
+            border: 1px solid #ddd;
             border-radius: 5px;
+            box-sizing: border-box;
         }
-        input[type="checkbox"] {
+        .form-container input[type="checkbox"] {
             margin-top: 5px;
         }
-        button {
-            background-color: #003535; /* Dark Brown */
+        .form-container button {
+            background-color: #005959; /* Darker teal for action buttons */
             color: white;
             border: none;
             padding: 10px 20px;
@@ -42,65 +54,92 @@
             cursor: pointer;
             border-radius: 5px;
         }
-        button:hover {
-            background-color: #002424;
+        .form-container button:hover {
+            background-color: #004d4d;
+        }
+        .settings-section {
+            margin-top: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Adding some space between the buttons */
+            margin-top: 20px; /* Space between the form and the buttons */
+        }
+        .button-container form, .button-container a {
+            display: inline-block;
+        }
+        .button-container .button-teal {
+            background-color: #005959; /* Darker teal for buttons */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button-container .button-teal:hover {
+            background-color: #004d4d;
         }
     </style>
 </head>
 <body>
-    <h1>Settings</h1>
-    <form method="post">
-        {% csrf_token %}
-        <label for="client_id">Client ID:</label>
-        <input type="text" name="client_id" required value="{{ form.client_id.value|default:'' }}">
-        
-        <label for="tenant_id">Tenant ID:</label>
-        <input type="text" name="tenant_id" required value="{{ form.tenant_id.value|default:'' }}">
-        
-        <label for="client_secret">Client Secret:</label>
-        <input type="password" name="client_secret" required value="{{ form.client_secret.value|default:'' }}">
-        
-        <label for="smtp_host">SMTP Host:</label>
-        <input type="text" name="smtp_host" required value="{{ form.smtp_host.value|default:'' }}">
-        
-        <label for="smtp_port">SMTP Port:</label>
-        <input type="number" name="smtp_port" required value="{{ form.smtp_port.value|default:'' }}">
-        
-        <label for="smtp_user">SMTP User:</label>
-        <input type="text" name="smtp_user" required value="{{ form.smtp_user.value|default:'' }}">
-        
-        <label for="smtp_password">SMTP Password:</label>
-        <input type="password" name="smtp_password" required value="{{ form.smtp_password.value|default:'' }}">
-     
-        <label for="storage_account_name">Storage Account Name:</label>
-        <input type="text" name="storage_account_name" required value="{{ form.storage_account_name.value|default:'' }}">
-        
-        <label for="container_name">Container Name:</label>
-        <input type="text" name="container_name" required value="{{ form.container_name.value|default:'' }}">
-        
-        <label for="email_use_tls">Use TLS:</label>
-        <input type="checkbox" name="email_use_tls" {% if form.email_use_tls.value %}checked{% endif %}>
-        
-        <label for="email_use_ssl">Use SSL:</label>
-        <input type="checkbox" name="email_use_ssl" {% if form.email_use_ssl.value %}checked{% endif %}>
-        
-        <button type="submit">Save</button>
-    </form>
-    
     <div>
-        <form method="post" action="{% url 'backup_now' %}">
-            {% csrf_token %}
-            <button type="submit">Backup Now</button>
-        </form>
-        <form method="post" action="{% url 'restore_from_backup' %}">
-            {% csrf_token %}
-            <button type="submit">Restore from Latest Backup</button>
-        </form>
-        <form method="post" action="{% url 'sync_users' %}">
-            {% csrf_token %}
-            <button type="submit">Sync Users</button>
-        </form>
-        <a href="{% url 'home_it' %}"><button type="button">Back</button></a>
+        <h1>Settings</h1>
+        <div class="form-container">
+            <form method="post">
+                {% csrf_token %}
+                <label for="client_id">Client ID:</label>
+                <input type="text" name="client_id" required value="{{ form.client_id.value|default:'' }}">
+                
+                <label for="tenant_id">Tenant ID:</label>
+                <input type="text" name="tenant_id" required value="{{ form.tenant_id.value|default:'' }}">
+                
+                <label for="client_secret">Client Secret:</label>
+                <input type="password" name="client_secret" required value="{{ form.client_secret.value|default:'' }}">
+                
+                <label for="storage_account_name">Storage Account Name:</label>
+                <input type="text" name="storage_account_name" required value="{{ form.storage_account_name.value|default:'' }}">
+                
+                <label for="container_name">Container Name:</label>
+                <input type="text" name="container_name" required value="{{ form.container_name.value|default:'' }}">
+
+                <label for="smtp_host">SMTP Host:</label>
+                <input type="text" name="smtp_host" required value="{{ form.smtp_host.value|default:'' }}">
+                
+                <label for="smtp_port">SMTP Port:</label>
+                <input type="number" name="smtp_port" required value="{{ form.smtp_port.value|default:'' }}">
+                
+                <label for="smtp_user">SMTP User:</label>
+                <input type="text" name="smtp_user" required value="{{ form.smtp_user.value|default:'' }}">
+                
+                <label for="smtp_password">SMTP Password:</label>
+                <input type="password" name="smtp_password" required value="{{ form.smtp_password.value|default:'' }}">
+
+                <label for="email_use_tls">Use TLS:</label>
+                <input type="checkbox" name="email_use_tls" {% if form.email_use_tls.value %}checked{% endif %}>
+                
+                <label for="email_use_ssl">Use SSL:</label>
+                <input type="checkbox" name="email_use_ssl" {% if form.email_use_ssl.value %}checked{% endif %}>
+
+                <button type="submit" style="background-color: #007373;">Save</button> <!-- Save button with a lighter teal -->
+            </form>
+        </div>
+
+        <div class="button-container">
+            <form method="post" action="{% url 'backup_now' %}">
+                {% csrf_token %}
+                <button type="submit" class="button-teal">Backup Now</button>
+            </form>
+            <form method="post" action="{% url 'restore_from_backup' %}">
+                {% csrf_token %}
+                <button type="submit" class="button-teal">Restore from Latest Backup</button>
+            </form>
+            <form method="post" action="{% url 'sync_users' %}">
+                {% csrf_token %}
+                <button type="submit" class="button-teal">Sync Users</button>
+            </form>
+            <a href="{% url 'home_it' %}"><button type="button" class="button-teal">Back</button></a>
+        </div>
     </div>
 </body>
 </html>
