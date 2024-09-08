@@ -41,24 +41,35 @@ class DynamicOnboardingForm(forms.Form):
         super().__init__(*args, **kwargs)
         if fields_queryset:
             for field in fields_queryset:
-                if field.field_type == 'text':
-                    self.fields[f'field_{field.id}'] = forms.CharField(label=field.label, required=field.is_active)
-                elif field.field_type == 'email':
-                    self.fields[f'field_{field.id}'] = forms.EmailField(label=field.label, required=field.is_active)
-                elif field.field_type == 'number':
-                    self.fields[f'field_{field.id}'] = forms.CharField(label=field.label, required=field.is_active)
-                elif field.field_type == 'date':
-                    self.fields[f'field_{field.id}'] = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label=field.label, required=field.is_active)
-                elif field.field_type == 'datetime':
-                    self.fields[f'field_{field.id}'] = forms.DateTimeField(widget=forms.DateInput(attrs={'type': 'datetime-local'}), label=field.label, required=field.is_active)
-                elif field.field_type == 'textarea':
-                    self.fields[f'field_{field.id}'] = forms.CharField(widget=forms.Textarea, label=field.label, required=field.is_active)
-                elif field.field_type == 'dropdown':
-                    options = field.options.split(',')
-                    self.fields[f'field_{field.id}'] = forms.ChoiceField(choices=[(option, option) for option in options], label=field.label, required=field.is_active)
+                field_key = f'field_{field.id}'
+                self.fields[field_key] = self.create_form_field(field)
+
+    def create_form_field(self, field):
+        if field.field_type == 'text':
+            return forms.CharField(label=field.label, required=field.is_active)
+        elif field.field_type == 'email':
+            return forms.EmailField(label=field.label, required=field.is_active)
+        elif field.field_type == 'number':
+            return forms.CharField(label=field.label, required=field.is_active)
+        elif field.field_type == 'date':
+            return forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label=field.label, required=field.is_active)
+        elif field.field_type == 'datetime':
+            return forms.DateTimeField(widget=forms.DateInput(attrs={'type': 'datetime-local'}), label=field.label, required=field.is_active)
+        elif field.field_type == 'textarea':
+            return forms.CharField(widget=forms.Textarea, label=field.label, required=field.is_active)
+        elif field.field_type == 'dropdown':
+            options = field.options.split(',')
+            return forms.ChoiceField(choices=[(option, option) for option in options], label=field.label, required=field.is_active)
+        else:
+            return forms.CharField(label=field.label, required=field.is_active)
 
 class OnboardingAdminForm(forms.ModelForm):
     status = forms.ChoiceField(choices=[('Pending', 'Pending'), ('Complete', 'Complete')])
+    class Meta:
+        model = Onboarding
+        fields = ['user', 'field_data', 'status']
+
+class OnboardingForm(forms.ModelForm):
     class Meta:
         model = Onboarding
         fields = ['user', 'field_data', 'status']

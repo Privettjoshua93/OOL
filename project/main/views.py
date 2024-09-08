@@ -1,7 +1,7 @@
 from .models import AzureCredentials, Onboarding, Offboarding, LOA, OnboardingField, populate_default_fields
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import OffboardingForm, LOAForm, LOAAdminForm, OffboardingAdminForm, AzureCredentialsForm, DynamicOnboardingForm, OnboardingAdminForm
+from .forms import OffboardingForm, LOAForm, LOAAdminForm, OffboardingAdminForm, AzureCredentialsForm, DynamicOnboardingForm, OnboardingAdminForm, OnboardingForm
 import json
 from django.contrib.auth.models import Group, User 
 from social_django.utils import load_strategy
@@ -17,6 +17,7 @@ from django.http import HttpResponse
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 from django.http import HttpResponse
 from django.core.management import call_command
+from django.db.models import Q
 
 
 
@@ -63,28 +64,25 @@ def onboarding(request):
     query = request.GET.get('q', '')
     sort_by = request.GET.get('sort_by', 'start_date_desc')
     status_filter = request.GET.get('status_filter', 'pending')
+    
+    onboardings = Onboarding.objects.all()
 
-    # Filter Onboarding records by user
-    onboardings = Onboarding.objects.filter(user=request.user)
+    if query:
+        onboardings = onboardings.filter(
+            Q(user__first_name__icontains=query) | Q(user__last_name__icontains=query) |
+            Q(field_data__icontains=query)
+        )
 
-    # Apply status filter
     if status_filter == 'pending':
         onboardings = onboardings.filter(status='Pending')
     elif status_filter == 'complete':
         onboardings = onboardings.filter(status='Complete')
-   
-    # Apply search filter if query is provided
-    if query:
-        onboardings = onboardings.filter(
-            field_data__icontains=query
-        )
-
-    # Apply sorting
+    
     if sort_by == 'start_date_asc':
         onboardings = onboardings.order_by('id')
     elif sort_by == 'start_date_desc':
         onboardings = onboardings.order_by('-id')
-
+    
     return render(request, 'onboarding.html', {'onboardings': onboardings, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
 
 @login_required
@@ -152,13 +150,28 @@ def new_onboarding(request):
 def edit_onboarding(request):
     onboarding_id = request.GET.get('id')
     onboarding = get_object_or_404(Onboarding, id=onboarding_id)
+    
+    fields_queryset = OnboardingField.objects.filter(is_active=True).order_by('order')
+    
     if request.method == 'POST':
-        form = OnboardingForm(request.POST, instance=onboarding)
+        form = DynamicOnboardingForm(request.POST, fields_queryset=fields_queryset)
         if form.is_valid():
-            form.save()
+            field_data = {}
+            for field in fields_queryset:
+                value = form.cleaned_data[f'field_{field.id}']
+                if isinstance(value, (date, datetime)):
+                    value = value.isoformat()  # Serialize date and datetime fields to a string
+                field_data[field.label] = value
+
+            onboarding.field_data = field_data
+            onboarding.status = request.POST.get('status', onboarding.status)
+            onboarding.save()
             return redirect('onboarding')
     else:
-        form = OnboardingForm(instance=onboarding)
+        initial_data = {f'field_{field.id}': onboarding.field_data.get(field.label) 
+                        for field in fields_queryset}
+        form = DynamicOnboardingForm(initial=initial_data, fields_queryset=fields_queryset)
+    
     return render(request, 'new_onboarding.html', {'form': form})
 
 @login_required
@@ -170,28 +183,24 @@ def delete_onboarding(request):
     return redirect('onboarding')
 
 @login_required
-@user_passes_test(lambda user: is_admin(user) or is_it(user))
+@user_passes_test(lambda u: is_admin(u) or is_it(u))
 def offboarding(request):
     query = request.GET.get('q', '')
     sort_by = request.GET.get('sort_by', 'last_date_time_desc')
     status_filter = request.GET.get('status_filter', 'pending')
 
-    # Set the initial queryset
     offboardings = Offboarding.objects.all()
 
-    # Apply search filter if query is provided
     if query:
         offboardings = offboardings.filter(
             Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(status__icontains=query)
         )
 
-    # Apply status filter
     if status_filter == 'pending':
         offboardings = offboardings.filter(status='Pending')
     elif status_filter == 'complete':
         offboardings = offboardings.filter(status='Complete')
 
-    # Apply sorting
     if sort_by == 'last_date_time_asc':
         offboardings = offboardings.order_by('last_date_time')
     elif sort_by == 'last_date_time_desc':
@@ -289,16 +298,13 @@ def loa_admin_hr(request):
     sort_by = request.GET.get('sort_by', 'start_date_desc')
     status_filter = request.GET.get('status_filter', 'pending')
 
-    # Set the initial queryset
     loas = LOA.objects.all()
 
-    # Apply search filter if query is provided
     if query:
         loas = loas.filter(
             Q(user__username__icontains=query) | Q(status__icontains=query)
         )
 
-    # Apply status filter
     if status_filter == 'pending':
         loas = loas.filter(status='Pending')
     elif status_filter == 'approved':
@@ -306,7 +312,6 @@ def loa_admin_hr(request):
     elif status_filter == 'denied':
         loas = loas.filter(status='Denied')
 
-    # Apply sorting
     if sort_by == 'start_date_asc':
         loas = loas.order_by('start_date')
     elif sort_by == 'start_date_desc':
