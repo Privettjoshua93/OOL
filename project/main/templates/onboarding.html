@@ -18,11 +18,9 @@
             background-color: #005959; /* Darker forest green */
             padding: 20px;
             border-radius: 10px;
-            display: inline-block;
-            width: 100%;
-            margin-bottom: 20px;
             display: flex;
             justify-content: center;
+            margin-bottom: 20px;
         }
         .form-container input[type="text"], .form-container select {
             padding: 8px;
@@ -73,12 +71,20 @@
         }
     </style>
     <script>
+        function submitFormWithoutQuery(parameter, value) {
+            const form = document.getElementById('filterForm');
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = ''; // Clear the search input value if submitting via dropdowns
+            document.getElementById(parameter).value = value; // Set the value for the changed dropdown
+            form.submit();
+        }
+
         window.onload = function() {
             document.getElementById('sort_by').onchange = function() {
-                this.form.submit();
+                submitFormWithoutQuery('sort_by_hidden', this.value);
             };
             document.getElementById('status_filter').onchange = function() {
-                this.form.submit();
+                submitFormWithoutQuery('status_filter_hidden', this.value);
             };
         };
     </script>
@@ -88,8 +94,11 @@
     <a href="{% url 'new_onboarding' %}"><button class="action-button">Create New</button></a>
     <a href="{% url 'home_admin_hr' %}"><button class="back-button">Back</button></a>
 
-    <form method="get" action="{% url 'onboarding' %}" class="form-container">
-        <input type="text" name="q" placeholder="Search..." value="{{ query }}">
+    <!-- Combined form for search and filters -->
+    <form method="get" action="{% url 'onboarding' %}" class="form-container" id="filterForm">
+        <input type="text" name="q" placeholder="Search..." value="{{ query }}" id="searchInput">
+        <input type="hidden" name="sort_by" value="{{ sort_by }}" id="sort_by_hidden">
+        <input type="hidden" name="status_filter" value="{{ status_filter }}" id="status_filter_hidden">
         <button type="submit">Search</button>
     </form>
 
@@ -102,22 +111,18 @@
                     <th>Preferred Work Email</th>
                     <th class="filter-container">
                         Start Date
-                        <form method="get" action="{% url 'onboarding' %}" class="inline-filter">
-                            <select name="sort_by" id="sort_by">
-                                <option value="start_date_desc" {% if sort_by == 'start_date_desc' %}selected{% endif %}>Date (Newest)</option>
-                                <option value="start_date_asc" {% if sort_by == 'start_date_asc' %}selected{% endif %}>Date (Oldest)</option>
-                            </select>
-                        </form>
+                        <select name="sort_by" id="sort_by">
+                            <option value="start_date_desc" {% if sort_by == 'start_date_desc' %}selected{% endif %}>Date (Newest)</option>
+                            <option value="start_date_asc" {% if sort_by == 'start_date_asc' %}selected{% endif %}>Date (Oldest)</option>
+                        </select>
                     </th>
                     <th class="filter-container">
                         Status
-                        <form method="get" action="{% url 'onboarding' %}" class="inline-filter">
-                            <select name="status_filter" id="status_filter">
-                                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
-                                <option value="complete" {% if status_filter == 'complete' %}selected{% endif %}>Complete</option>
-                                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
-                            </select>
-                        </form>
+                        <select name="status_filter" id="status_filter">
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="complete" {% if status_filter == 'complete' %}selected{% endif %}>Complete</option>
+                            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
+                        </select>
                     </th>
                     <th>Actions</th>
                 </tr>

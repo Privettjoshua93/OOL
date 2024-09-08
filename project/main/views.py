@@ -67,23 +67,31 @@ def onboarding(request):
     
     onboardings = Onboarding.objects.all()
 
+    # Apply search filter if query is provided
     if query:
         onboardings = onboardings.filter(
             Q(user__first_name__icontains=query) | Q(user__last_name__icontains=query) |
             Q(field_data__icontains=query)
         )
-
+   
+    # Apply status filter
     if status_filter == 'pending':
         onboardings = onboardings.filter(status='Pending')
     elif status_filter == 'complete':
         onboardings = onboardings.filter(status='Complete')
     
+    # Apply sorting
     if sort_by == 'start_date_asc':
         onboardings = onboardings.order_by('id')
     elif sort_by == 'start_date_desc':
         onboardings = onboardings.order_by('-id')
-    
-    return render(request, 'onboarding.html', {'onboardings': onboardings, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
+
+    return render(request, 'onboarding.html', {
+        'onboardings': onboardings,
+        'query': query,
+        'sort_by': sort_by,
+        'status_filter': status_filter
+    })
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_it(u))
