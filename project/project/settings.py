@@ -2,6 +2,9 @@ import os
 import base64
 from pathlib import Path
 from django.conf import settings
+from azure.identity import ClientSecretCredential
+from azure.keyvault.keys import KeyClient
+import mmap
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,6 +54,7 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
     'project.middleware.UpdateSocialAuthMiddleware',
     'project.middleware.CheckBackupMiddleware',
+    'project.middleware.DynamicKeyMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -157,8 +161,6 @@ SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY = ""
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = ""
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = ""
 
-FIELD_ENCRYPTION_KEY = 'zKfQiYgvDe1_MCrITwZBWXVQhgTZm9F2Q0FZbOmZVaM='
-
 # Add necessary allauth settings
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_AUTHENTICATION_METHOD = "username"
@@ -182,3 +184,43 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 
+def fetch_encryption_key_from_ram():
+    try:
+        with open('dynamic_key', 'r+b') as f:
+            mm = mmap.mmap(f.fileno(), 0)
+            mm.seek(0)
+            return mm.read(64).rstrip(b'\0').decode('utf-8')
+    except FileNotFoundError:
+        # Generate a temporary key if dynamic_key file is missing
+        temp_key = base64.urlsafe_b64encode(os.urandom(32)).decode('utf-8')
+        with open('dynamic_key', 'wb') as f:
+            f.write(b'\0' * 64)
+        with open('dynamic_key', 'r+b') as f:
+            mm = mmap.mmap(f.fileno(), 0)
+            mm.seek(0)
+            mm.write(temp_key.encode('utf-8'))
+            mm.seek(0)
+        return temp_key
+
+# Initially set the FIELD_ENCRYPTION_KEY
+FIELD_ENCRYPTION_KEY = fetch_encryption_key_from_ram()
+
+def fetch_encryption_key_from_azure():
+    credentials = AzureCredentials.objects.first()
+    if not credentials:
+        raise ValueError("No Azure Credentials found")
+    
+    credential = ClientSecretCredential(
+        tenant_id=credentials.tenant_id,
+        client_id=credentials.client_id,
+        client_secret=credentials.client_secret
+    )
+    key_client = KeyClient(vault_url=f"https://{credentials.vault_name}.vault.azure.net", credential=credential)
+    key = key_client.get_key(credentials.key_name)
+    
+    key_value = key.key.n
+    encryption_key = base64.urlsafe_b64encode(key_value[:32]).decode('utf-8')
+    with open('/dev/shm/dynamic_key', 'w+') as f:
+        f.seek(0)
+        f.write(encryption_key)
+        f.truncate()

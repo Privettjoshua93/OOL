@@ -18,6 +18,11 @@ from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 from django.http import HttpResponse
 from django.core.management import call_command
 
+
+
+
+
+
 # Helper Functions for Access Control
 def is_admin(user):
     return user.groups.filter(name='Admin').exists()
@@ -521,7 +526,6 @@ def update_social_auth_backend():
         settings.EMAIL_USE_SSL = False
         
 @login_required
-@user_passes_test(is_it)
 def settings(request):
     if request.method == 'POST':
         form = AzureCredentialsForm(request.POST)
@@ -533,21 +537,23 @@ def settings(request):
                 client_secret = form.cleaned_data['client_secret']
                 tenant_id = form.cleaned_data['tenant_id']
                 encryption_key = fetch_encryption_key_from_vault(key_identifier, client_id, client_secret, tenant_id)
-
-                # Save credentials to the database
-                AzureCredentials.objects.all().delete() 
-                form.save()
                 
-                # Update the settings with the fetched encryption key
-                settings.FIELD_ENCRYPTION_KEY = encryption_key
+                # Save credentials to the database
+                AzureCredentials.objects.all().delete()
+                form.save()
+
+                # Fetch and overwrite the temporary key with new key in RAM
+                with open('/dev/shm/dynamic_key', 'w+') as f:
+                    f.seek(0)
+                    f.write(encryption_key)
+                    f.truncate()
 
                 return redirect('home_it')
             except Exception as e:
-                form.add_error(None, str(e)) 
+                form.add_error(None, str(e))
     else:
         credentials = AzureCredentials.objects.first()    
         form = AzureCredentialsForm(instance=credentials) if credentials else AzureCredentialsForm()
-
     return render(request, 'settings.html', {'form': form})
 
 @login_required
