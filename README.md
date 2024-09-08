@@ -23,6 +23,9 @@ Make sure you have the following dependencies installed before running the proje
 - Django Social Auth
 - Encrypted Fields
 - Python Decouple
+- Azure Identity
+- Azure Keyvault Keys
+- Azure Storage Blob
 
 You can install these dependencies using pip:
 
@@ -137,21 +140,11 @@ Use the "Backup Now" button to create backups and the "Restore from Latest Backu
 ## Sync Users
 
 Use the "Sync Users" button to synchronize users from Azure AD.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 ```
-
-### Notes
-
-- Make sure to replace `your-repo` with the actual repository URL.
-- Ensure that the `requirements.txt` file is updated with all necessary dependencies.
-- Place the `.env` file next to the `manage.py` file in the root directory.
 
 ### Example `requirements.txt`
 
-Below is an example `requirements.txt` that lists all the dependencies:
+Make sure your `requirements.txt` includes all necessary dependencies:
 
 ```plaintext
 django==5.1
