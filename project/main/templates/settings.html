@@ -71,10 +71,7 @@
         
         <label for="smtp_password">SMTP Password:</label>
         <input type="password" name="smtp_password" required value="{{ form.smtp_password.value|default:'' }}">
-        
-        <label for="key_identifier">Key Identifier:</label>
-        <input type="text" name="key_identifier" required value="{{ form.key_identifier.value|default:'' }}">
-        
+     
         <label for="storage_account_name">Storage Account Name:</label>
         <input type="text" name="storage_account_name" required value="{{ form.storage_account_name.value|default:'' }}">
         
@@ -87,7 +84,7 @@
         <label for="email_use_ssl">Use SSL:</label>
         <input type="checkbox" name="email_use_ssl" {% if form.email_use_ssl.value %}checked{% endif %}>
         
-        <button type="submit">Validate Key Then Establish Encryption</button>
+        <button type="submit">Save</button>
     </form>
     
     <div>

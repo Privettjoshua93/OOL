@@ -5,6 +5,7 @@ from django.conf import settings
 from azure.identity import ClientSecretCredential
 from azure.keyvault.keys import KeyClient
 import mmap
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,7 +55,7 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
     'project.middleware.UpdateSocialAuthMiddleware',
     'project.middleware.CheckBackupMiddleware',
-    'project.middleware.DynamicKeyMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -203,7 +204,7 @@ def fetch_encryption_key_from_ram():
         return temp_key
 
 # Initially set the FIELD_ENCRYPTION_KEY
-FIELD_ENCRYPTION_KEY = fetch_encryption_key_from_ram()
+FIELD_ENCRYPTION_KEY = config('ENCRYPTION_KEY')
 
 def fetch_encryption_key_from_azure():
     credentials = AzureCredentials.objects.first()

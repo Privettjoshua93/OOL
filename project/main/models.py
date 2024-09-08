@@ -106,16 +106,13 @@ class LOA(models.Model):
 class AzureCredentials(models.Model):
     client_id = models.CharField(max_length=100)
     tenant_id = models.CharField(max_length=100)
-    client_secret = models.CharField(max_length=100)
-    vault_name = models.CharField(max_length=100, default='vault name')  # New field
-    key_name = models.CharField(max_length=100, default='key name')  # New field
+    client_secret = EncryptedCharField(max_length=100)  # Updated to be encrypted
     smtp_host = models.CharField(max_length=100, default='smtp.example.com')
     smtp_port = models.PositiveIntegerField(default=587)
     smtp_user = models.CharField(max_length=100, default='user@example.com')
-    smtp_password = models.CharField(max_length=100, default='password')
-    key_identifier = models.CharField(max_length=200, help_text="URL of the key in Azure Key Vault")
-    storage_account_name = models.CharField(max_length=100, default='default_storage_account', help_text="Azure Storage Account Name")
-    container_name = models.CharField(max_length=100, default='default_container', help_text="Azure Blob Storage Container Name")
-    
+    smtp_password = EncryptedCharField(max_length=100)  # Updated to be encrypted
+    storage_account_name = models.CharField(max_length=100, default='default_storage_account')
+    container_name = models.CharField(max_length=100, default='default_container')
+
     def __str__(self):
         return self.client_id

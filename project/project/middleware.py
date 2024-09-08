@@ -4,11 +4,7 @@ from datetime import datetime, timedelta
 import os
 from django.conf import settings
 from django.core.management import call_command
-from azure.identity import ClientSecretCredential
-from azure.keyvault.keys import KeyClient
-import base64
 import mmap
-
 
 class CheckBackupMiddleware(MiddlewareMixin):
     def process_request(self, request):
@@ -19,6 +15,7 @@ class CheckBackupMiddleware(MiddlewareMixin):
                 last_backup = datetime.fromisoformat(file.read().strip())
         else:
             last_backup = now - timedelta(days=1)  # Set to 24 hours ago if file doesn't exist
+
         if now - last_backup >= timedelta(days=1):
             call_command('backup_db')  # Execute backup_db command
             with open(backup_file, 'w') as file:

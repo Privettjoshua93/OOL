@@ -530,29 +530,13 @@ def settings(request):
     if request.method == 'POST':
         form = AzureCredentialsForm(request.POST)
         if form.is_valid():
-            try:
-                # Validate and fetch the encryption key
-                key_identifier = form.cleaned_data['key_identifier']
-                client_id = form.cleaned_data['client_id']
-                client_secret = form.cleaned_data['client_secret']
-                tenant_id = form.cleaned_data['tenant_id']
-                encryption_key = fetch_encryption_key_from_vault(key_identifier, client_id, client_secret, tenant_id)
-                
-                # Save credentials to the database
-                AzureCredentials.objects.all().delete()
-                form.save()
-
-                # Fetch and overwrite the temporary key with new key in RAM
-                with open('/dev/shm/dynamic_key', 'w+') as f:
-                    f.seek(0)
-                    f.write(encryption_key)
-                    f.truncate()
-
-                return redirect('home_it')
-            except Exception as e:
-                form.add_error(None, str(e))
+            AzureCredentials.objects.all().delete()
+            form.save()
+            return redirect('home_it')
+        else:
+            form.add_error(None, 'Invalid data')
     else:
-        credentials = AzureCredentials.objects.first()    
+        credentials = AzureCredentials.objects.first()
         form = AzureCredentialsForm(instance=credentials) if credentials else AzureCredentialsForm()
     return render(request, 'settings.html', {'form': form})
 

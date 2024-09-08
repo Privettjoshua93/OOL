@@ -30,7 +30,7 @@ class AzureCredentialsForm(forms.ModelForm):
         fields = [
             'client_id', 'tenant_id', 'client_secret',
             'smtp_host', 'smtp_port', 'smtp_user', 'smtp_password',
-            'key_identifier', 'storage_account_name', 'container_name',
+            'storage_account_name', 'container_name',
             'email_use_tls', 'email_use_ssl'
         ]
 
