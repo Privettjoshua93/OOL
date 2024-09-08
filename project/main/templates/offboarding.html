@@ -1,3 +1,4 @@
+{% load custom_filters %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,34 +14,43 @@
         h1 {
             color: white;
         }
-        form, table {
+        .form-container {
             background-color: #005959; /* Darker forest green */
             padding: 20px;
             border-radius: 10px;
             display: inline-block;
             width: 100%;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
         }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        input[type="text"], select {
-            width: 100%;
+        .form-container input[type="text"], .form-container select {
             padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ddd; 
+            margin-right: 10px;
+            border: 1px solid #ddd;
             border-radius: 5px;
         }
-        button {
+        .form-container button {
             background-color: #003535; /* Dark Brown */
             color: white;
             border: none;
             padding: 10px 20px;
-            margin-top: 15px;
             cursor: pointer;
             border-radius: 5px;
         }
-        button:hover {
+        .form-container button:hover {
+            background-color: #002424;
+        }
+        .action-button, .back-button {
+            background-color: #003535; /* Match search button color */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .action-button:hover, .back-button:hover {
             background-color: #002424;
         }
         table {
@@ -49,55 +59,84 @@
             border-collapse: collapse;
         }
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid black; /* Change to black */
             padding: 8px;
         }
         th {
             background-color: #003535; /* Dark Brown */
             color: white;
+            text-align: left;
+        }
+        .filter-container {
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
+    <script>
+        window.onload = function() {
+            document.getElementById('sort_by').onchange = function() {
+                this.form.submit();
+            };
+            document.getElementById('status_filter').onchange = function() {
+                this.form.submit();
+            };
+        };
+    </script>
 </head>
 <body>
     <h1>Offboarding</h1>
-    <a href="{% url 'new_offboarding' %}"><button>Create New</button></a>
-    <a href="{% url 'home_admin_hr' %}"><button>Back</button></a>
-    <form method="get" action="{% url 'offboarding' %}">
+    <a href="{% url 'new_offboarding' %}"><button class="action-button">Create New</button></a>
+    <a href="{% url 'home_admin_hr' %}"><button class="back-button">Back</button></a>
+
+    <form method="get" action="{% url 'offboarding' %}" class="form-container">
         <input type="text" name="q" placeholder="Search..." value="{{ query }}">
-        <label for="sort_by">Sort by:</label>
-        <select name="sort_by">
-            <option value="last_date_time_desc" {% if sort_by == 'last_date_time_desc' %}selected{% endif %}>Last Date/Time (Newest first)</option>
-            <option value="last_date_time_asc" {% if sort_by == 'last_date_time_asc' %}selected{% endif %}>Last Date/Time (Oldest first)</option>
-        </select>
-        <label for="status_filter">Status:</label>
-        <select name="status_filter">
-            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
-            <option value="complete" {% if status_filter == 'complete' %}selected{% endif %}>Complete</option>
-            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
-        </select>
         <button type="submit">Search</button>
     </form>
-    <table>
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Last Date/Time</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        {% for offboarding in offboardings %}
-        <tr>
-            <td>{{ offboarding.first_name }}</td>
-            <td>{{ offboarding.last_name }}</td>
-            <td>{{ offboarding.last_date_time }}</td>
-            <td>{{ offboarding.status }}</td>
-            <td>
-                <a href="{% url 'offboarding_submission_overview' %}?id={{ offboarding.id }}"><button>View</button></a>
-                <a href="{% url 'edit_offboarding' %}?id={{ offboarding.id }}"><button>Edit</button></a>
-                <a href="{% url 'delete_offboarding' %}?id={{ offboarding.id }}"><button>Delete</button></a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th class="filter-container">
+                        Last Date/Time
+                        <form method="get" action="{% url 'offboarding' %}" class="inline-filter">
+                            <select name="sort_by" id="sort_by">
+                                <option value="last_date_time_desc" {% if sort_by == 'last_date_time_desc' %}selected{% endif %}>Date (Newest)</option>
+                                <option value="last_date_time_asc" {% if sort_by == 'last_date_time_asc' %}selected{% endif %}>Date (Oldest)</option>
+                            </select>
+                        </form>
+                    </th>
+                    <th class="filter-container">
+                        Status
+                        <form method="get" action="{% url 'offboarding' %}" class="inline-filter">
+                            <select name="status_filter" id="status_filter">
+                                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="complete" {% if status_filter == 'complete' %}selected{% endif %}>Complete</option>
+                                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
+                            </select>
+                        </form>
+                    </th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for offboarding in offboardings %}
+                <tr>
+                    <td>{{ offboarding.first_name }}</td>
+                    <td>{{ offboarding.last_name }}</td>
+                    <td>{{ offboarding.last_date_time }}</td>
+                    <td>{{ offboarding.status }}</td>
+                    <td>
+                        <a href="{% url 'offboarding_submission_overview' %}?id={{ offboarding.id }}"><button class="action-button">View</button></a>
+                        <a href="{% url 'edit_offboarding' %}?id={{ offboarding.id }}"><button class="action-button">Edit</button></a>
+                        <a href="{% url 'delete_offboarding' %}?id={{ offboarding.id }}"><button class="action-button">Delete</button></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

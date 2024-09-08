@@ -13,34 +13,43 @@
         h1 {
             color: white;
         }
-        form, table {
+        .form-container {
             background-color: #005959; /* Darker forest green */
             padding: 20px;
             border-radius: 10px;
             display: inline-block;
             width: 100%;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
         }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        input[type="text"], select {
-            width: 100%;
+        .form-container input[type="text"], .form-container select {
             padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ddd; 
+            margin-right: 10px;
+            border: 1px solid #ddd;
             border-radius: 5px;
         }
-        button {
+        .form-container button {
             background-color: #003535; /* Dark Brown */
             color: white;
             border: none;
             padding: 10px 20px;
-            margin-top: 15px;
             cursor: pointer;
             border-radius: 5px;
         }
-        button:hover {
+        .form-container button:hover {
+            background-color: #002424;
+        }
+        .action-button, .back-button {
+            background-color: #003535; /* Match search button color */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .action-button:hover, .back-button:hover {
             background-color: #002424;
         }
         table {
@@ -49,54 +58,83 @@
             border-collapse: collapse;
         }
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid black; /* Change to black */
             padding: 8px;
         }
         th {
             background-color: #003535; /* Dark Brown */
             color: white;
+            text-align: left;
+        }
+        .filter-container {
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
+    <script>
+        window.onload = function() {
+            document.getElementById('sort_by').onchange = function() {
+                this.form.submit();
+            };
+            document.getElementById('status_filter').onchange = function() {
+                this.form.submit();
+            };
+        };
+    </script>
 </head>
 <body>
     <h1>Leave of Absence User</h1>
-    <form method="get" action="{% url 'loa_user' %}">
+    <a href="{% url 'loa_create' %}"><button class="action-button">Create New</button></a>
+    <a href="{% url 'home_user' %}"><button class="back-button">Back</button></a>
+
+    <form method="get" action="{% url 'loa_user' %}" class="form-container">
         <input type="text" name="q" placeholder="Search..." value="{{ query }}">
-        <label for="sort_by">Sort by:</label>
-        <select name="sort_by">
-            <option value="start_date_desc" {% if sort_by == 'start_date_desc' %}selected{% endif %}>Start Date (Newest first)</option>
-            <option value="start_date_asc" {% if sort_by == 'start_date_asc' %}selected{% endif %}>Start Date (Oldest first)</option>
-        </select>
-        <label for="status_filter">Status:</label>
-        <select name="status_filter">
-            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
-            <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
-            <option value="denied" {% if status_filter == 'denied' %}selected{% endif %}>Denied</option>
-            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
-        </select>
         <button type="submit">Search</button>
-        <a href="{% url 'loa_create' %}"><button type="button">Create New</button></a>
-        <a href="{% url 'home_user' %}"><button type="button">Back</button></a>
     </form>
-    <table>
-        <tr>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        {% for loa in loas %}
-        <tr>
-            <td>{{ loa.start_date }}</td>
-            <td>{{ loa.end_date }}</td>
-            <td>{{ loa.status }}</td>
-            <td>
-                <a href="{% url 'loa_submission_overview_user' %}?id={{ loa.id }}"><button>View</button></a>
-                <a href="{% url 'loa_edit_user' loa.id %}"><button>Edit</button></a>
-                <a href="{% url 'loa_delete_user' loa.id %}"><button>Delete</button></a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="filter-container">
+                        Start Date
+                        <form method="get" action="{% url 'loa_user' %}" class="inline-filter">
+                            <select name="sort_by" id="sort_by">
+                                <option value="start_date_desc" {% if sort_by == 'start_date_desc' %}selected{% endif %}>Date (Newest)</option>
+                                <option value="start_date_asc" {% if sort_by == 'start_date_asc' %}selected{% endif %}>Date (Oldest)</option>
+                            </select>
+                        </form>
+                    </th>
+                    <th>End Date</th>
+                    <th class="filter-container">
+                        Status
+                        <form method="get" action="{% url 'loa_user' %}" class="inline-filter">
+                            <select name="status_filter" id="status_filter">
+                                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                                <option value="denied" {% if status_filter == 'denied' %}selected{% endif %}>Denied</option>
+                                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Show All</option>
+                            </select>
+                        </form>
+                    </th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loa in loas %}
+                <tr>
+                    <td>{{ loa.start_date }}</td>
+                    <td>{{ loa.end_date }}</td>
+                    <td>{{ loa.status }}</td>
+                    <td>
+                        <a href="{% url 'loa_submission_overview_user' %}?id={{ loa.id }}"><button class="action-button" type="button">View</button></a>
+                        <a href="{% url 'loa_edit_user' loa.id %}"><button class="action-button" type="button">Edit</button></a>
+                        <a href="{% url 'loa_delete_user' loa.id %}"><button class="action-button" type="button">Delete</button></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
