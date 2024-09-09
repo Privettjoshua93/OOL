@@ -38,6 +38,7 @@ pip install python-decouple
 pip install azure-identity
 pip install azure-keyvault-keys
 pip install azure-storage-blob
+pip install django-encrypted-model-fields
 ```
 
 ## Setup
