@@ -9,7 +9,7 @@ This project is designed to manage the onboarding, offboarding, and leave of abs
 - Employee Onboarding
 - Employee Offboarding
 - Leave of Absence (LOA) Management
-- Administrator, IT, and User roles
+- Administrator, IT, and, Approver, and User roles
 - Email notifications
 - Backup and Restore functionality
 
