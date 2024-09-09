@@ -17,18 +17,6 @@ This project is designed to manage the onboarding, offboarding, and leave of abs
 
 Make sure you have the following dependencies installed before running the project:
 
-- Python 3.12.5
-- Django 5.1
-- Django Allauth
-- Django Social Auth
-- Encrypted Fields
-- Python Decouple
-- Azure Identity
-- Azure Keyvault Keys
-- Azure Storage Blob
-
-You can install these dependencies using pip:
-
 ```sh
 pip install django==5.1
 pip install django-allauth
