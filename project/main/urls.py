@@ -10,7 +10,6 @@ urlpatterns = [
     path('edit_onboarding/', views.edit_onboarding, name='edit_onboarding'),
     path('delete_onboarding/', views.delete_onboarding, name='delete_onboarding'),
     path('offboarding/', views.offboarding, name='offboarding'),
-    path('offboarding_submission_overview/', views.offboarding_submission_overview, name='offboarding_submission_overview'),
     path('new_offboarding/', views.new_offboarding, name='new_offboarding'),
     path('edit_offboarding/', views.edit_offboarding, name='edit_offboarding'),
     path('delete_offboarding/', views.delete_offboarding, name='delete_offboarding'),

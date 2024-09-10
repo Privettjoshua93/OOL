@@ -131,8 +131,7 @@
                     <td>{{ offboarding.last_date_time }}</td>
                     <td>{{ offboarding.status }}</td>
                     <td>
-                        <a href="{% url 'offboarding_submission_overview' %}?id={{ offboarding.id }}"><button class="action-button">View</button></a>
-                        <a href="{% url 'edit_offboarding' %}?id={{ offboarding.id }}"><button class="action-button">Edit</button></a>
+                        <a href="{% url 'edit_offboarding' %}?id={{ offboarding.id }}"><button class="action-button">Update</button></a>
                         <a href="{% url 'delete_offboarding' %}?id={{ offboarding.id }}"><button class="action-button">Delete</button></a>
                     </td>
                 </tr>

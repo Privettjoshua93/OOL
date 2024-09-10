@@ -93,12 +93,14 @@
     <h1>Leave of Absence Admin/HR</h1>
     <a href="{% url 'loa_create' %}"><button class="action-button">Create New</button></a>
     <a href="{% url 'home_admin_hr' %}"><button class="back-button">Back</button></a>
+
     <form method="get" action="{% url 'loa_admin_hr' %}" class="form-container" id="filterForm">
         <input type="text" name="q" placeholder="Search..." value="{{ query }}" id="searchInput">
         <input type="hidden" name="sort_by" value="{{ sort_by }}" id="sort_by_hidden">
         <input type="hidden" name="status_filter" value="{{ status_filter }}" id="status_filter_hidden">
         <button type="submit">Search</button>
     </form>
+
     <div class="table-container">
         <table>
             <thead>

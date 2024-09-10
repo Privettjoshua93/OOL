@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from encrypted_model_fields.fields import EncryptedCharField
 from django.utils import timezone
+from django import forms
 
 class OnboardingField(models.Model):
     label = models.CharField(max_length=255)
@@ -81,13 +82,18 @@ class Offboarding(models.Model):
     ]
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    last_date_time = models.DateTimeField(default=timezone.now)  # Correct usage
+    last_date_time = models.DateTimeField(default=timezone.now)
     additional_notes = models.TextField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
     details = models.TextField(default='')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name} - {self.status}'
+    
+class OffboardingAdminForm(forms.ModelForm):
+    class Meta:
+        model = Offboarding
+        fields = ['first_name', 'last_name', 'last_date_time', 'additional_notes', 'status']
 
 class LOA(models.Model):
     STATUS_CHOICES = [

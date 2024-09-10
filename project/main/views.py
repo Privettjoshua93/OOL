@@ -196,58 +196,66 @@ def offboarding(request):
     query = request.GET.get('q', '')
     sort_by = request.GET.get('sort_by', 'last_date_time_desc')
     status_filter = request.GET.get('status_filter', 'pending')
-
+    
     offboardings = Offboarding.objects.all()
-
+    
+    # Apply query filter
     if query:
         offboardings = offboardings.filter(
             Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(status__icontains=query)
         )
-
+    
+    # Apply status filter
     if status_filter == 'pending':
         offboardings = offboardings.filter(status='Pending')
     elif status_filter == 'complete':
         offboardings = offboardings.filter(status='Complete')
 
+    # Apply sorting
     if sort_by == 'last_date_time_asc':
         offboardings = offboardings.order_by('last_date_time')
     elif sort_by == 'last_date_time_desc':
         offboardings = offboardings.order_by('-last_date_time')
-
-    return render(request, 'offboarding.html', {'offboardings': offboardings, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
+    
+    return render(request, 'offboarding.html', {
+        'offboardings': offboardings,
+        'query': query,
+        'sort_by': sort_by,
+        'status_filter': status_filter
+    })
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_it(u))
-def offboarding_submission_overview(request):
+def edit_offboarding(request):
     offboarding_id = request.GET.get('id')
     offboarding = get_object_or_404(Offboarding, id=offboarding_id)
+
     if request.method == 'POST':
         form = OffboardingAdminForm(request.POST, instance=offboarding)
         if form.is_valid():
             original_status = offboarding.status
             form.save()
-            recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
-            user_full_name = f'{offboarding.user.first_name} {offboarding.user.last_name}'
+
             if offboarding.status != original_status:
-                subject = f'Offboarding for {user_full_name} Updated to {offboarding.status}'
-            else:
-                subject = f'Offboarding for {user_full_name} has been edited'
-            details_dict = {
-                'First Name': offboarding.user.first_name,
-                'Last Name': offboarding.user.last_name,
-                'Last Date/Time': offboarding.last_date_time,
-                'Additional Notes': offboarding.additional_notes,
-                'Status': offboarding.status,
-            }
-            send_email(
-                subject,
-                details_dict,
-                recipient_list
-            )
+                recipient_list = get_user_emails_by_group('Admin') + get_user_emails_by_group('IT')
+                user_full_name = f'{offboarding.first_name} {offboarding.last_name}'
+                subject = f'Offboarding for {user_full_name} updated to {offboarding.status}'
+                details_dict = {
+                    'First Name': offboarding.first_name,
+                    'Last Name': offboarding.last_name,
+                    'Last Date/Time': offboarding.last_date_time,
+                    'Additional Notes': offboarding.additional_notes,
+                    'Status': offboarding.status,
+                }
+                send_email(subject, details_dict, recipient_list)
+
             return redirect('offboarding')
+        else:
+            print("Form invalid:", form.errors)
     else:
         form = OffboardingAdminForm(instance=offboarding)
-    return render(request, 'offboarding_submission_overview.html', {'form': form, 'offboarding': offboarding})
+
+    return render(request, 'edit_offboarding.html', {'form': form, 'offboarding': offboarding})
 
 @login_required
 @user_passes_test(lambda user: is_admin(user) or is_it(user))
@@ -281,6 +289,7 @@ def new_offboarding(request):
 def edit_offboarding(request):
     offboarding_id = request.GET.get('id')
     offboarding = get_object_or_404(Offboarding, id=offboarding_id)
+
     if request.method == 'POST':
         form = OffboardingForm(request.POST, instance=offboarding)
         if form.is_valid():
@@ -288,8 +297,8 @@ def edit_offboarding(request):
             return redirect('offboarding')
     else:
         form = OffboardingForm(instance=offboarding)
-    return render(request, 'new_offboarding.html', {'form': form})
-
+    
+    return render(request, 'edit_offboarding.html', {'form': form})
 @login_required
 @user_passes_test(lambda user: is_admin(user) or is_it(user))
 def delete_offboarding(request):
@@ -298,38 +307,45 @@ def delete_offboarding(request):
     offboarding.delete()
     return redirect('offboarding')
 
-# LOA Admin Overview View
 @login_required
 @user_passes_test(lambda user: is_admin(user) or is_approver(user) or is_it(user))
 def loa_admin_hr(request):
     query = request.GET.get('q', '')
     sort_by = request.GET.get('sort_by', 'start_date_desc')
     status_filter = request.GET.get('status_filter', 'pending')
-
+    
     loas = LOA.objects.all()
-
+    
+    # Apply search filter
     if query:
         loas = loas.filter(
-            Q(user__username__icontains=query) | Q(status__icontains=query)
+            Q(user__first_name__icontains=query) | Q(user__last_name__icontains=query) | Q(status__icontains=query)
         )
-
+    
+    # Apply status filter
     if status_filter == 'pending':
         loas = loas.filter(status='Pending')
     elif status_filter == 'approved':
         loas = loas.filter(status='Approved')
     elif status_filter == 'denied':
         loas = loas.filter(status='Denied')
-
+    
+    # Apply sorting
     if sort_by == 'start_date_asc':
         loas = loas.order_by('start_date')
     elif sort_by == 'start_date_desc':
         loas = loas.order_by('-start_date')
-    elif sort_by == 'last_date_asc':
-        loas = loas.order_by('last_date')
-    elif sort_by == 'last_date_desc':
-        loas = loas.order_by('-last_date')
-
-    return render(request, 'loa_admin_hr.html', {'loas': loas, 'query': query, 'sort_by': sort_by, 'status_filter': status_filter})
+    elif sort_by == 'end_date_asc':
+        loas = loas.order_by('end_date')
+    elif sort_by == 'end_date_desc':
+        loas = loas.order_by('-end_date')
+    
+    return render(request, 'loa_admin_hr.html', {
+        'loas': loas,
+        'query': query,
+        'sort_by': sort_by,
+        'status_filter': status_filter
+    })
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_approver(u) or is_it(u))

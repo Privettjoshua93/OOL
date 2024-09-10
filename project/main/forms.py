@@ -4,7 +4,7 @@ from .models import Onboarding, Offboarding, LOA, AzureCredentials, OnboardingFi
 class OffboardingForm(forms.ModelForm):
     class Meta:
         model = Offboarding
-        fields = ['first_name', 'last_name', 'last_date_time', 'additional_notes']
+        fields = ['first_name', 'last_name', 'last_date_time', 'additional_notes', 'status']
 
 class OffboardingAdminForm(forms.ModelForm):
     class Meta:
