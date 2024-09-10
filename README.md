@@ -9,25 +9,13 @@ This project is designed to manage the onboarding, offboarding, and leave of abs
 - Employee Onboarding
 - Employee Offboarding
 - Leave of Absence (LOA) Management
-- Administrator, IT, and User roles
+- Administrator, IT, and, Approver, and User roles
 - Email notifications
 - Backup and Restore functionality
 
 ## Dependencies
 
 Make sure you have the following dependencies installed before running the project:
-
-- Python 3.12.5
-- Django 5.1
-- Django Allauth
-- Django Social Auth
-- Encrypted Fields
-- Python Decouple
-- Azure Identity
-- Azure Keyvault Keys
-- Azure Storage Blob
-
-You can install these dependencies using pip:
 
 ```sh
 pip install django==5.1
@@ -38,6 +26,7 @@ pip install python-decouple
 pip install azure-identity
 pip install azure-keyvault-keys
 pip install azure-storage-blob
+pip install django-encrypted-model-fields
 ```
 
 ## Setup
