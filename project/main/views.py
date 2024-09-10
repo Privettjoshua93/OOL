@@ -399,7 +399,12 @@ def loa_create(request):
                 return redirect('loa_user')
     else:
         form = LOAForm()
-    return render(request, 'loa_create.html', {'form': form})
+    return render(request, 'loa_create.html', {
+        'form': form,
+        'is_admin': request.user.groups.filter(name='Admin').exists(),
+        'is_approver': request.user.groups.filter(name='Approver').exists(),
+        'is_it': request.user.groups.filter(name='IT').exists(),
+    })
 
 @login_required
 @user_passes_test(is_user)
@@ -439,10 +444,16 @@ def loa_user(request):
 
 @login_required
 @user_passes_test(is_user)
-def loa_submission_overview_user(request):
-    loa_id = request.GET.get('id')
-    loa = get_object_or_404(LOA, id=loa_id, user=request.user)
-    return render(request, 'loa_submission_overview_user.html', {'loa': loa})
+def loa_submission_overview_user(request, id):
+    loa = get_object_or_404(LOA, id=id, user=request.user)
+    if request.method == 'POST':
+        form = LOAForm(request.POST, instance=loa)
+        if form.is_valid():
+            form.save()
+            return redirect('loa_user')
+    else:
+        form = LOAForm(instance=loa)
+    return render(request, 'loa_submission_overview_user.html', {'form': form, 'loa': loa})
 
 @login_required
 @user_passes_test(is_user)

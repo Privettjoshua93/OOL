@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>LOA Submission Overview User</title>
+    <title>Leave of Absence Submission Overview</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -9,8 +9,36 @@
             background-color: #008080; /* Forest Green */
             margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
         }
         h1 {
+            color: white;
+            text-align: center;
+        }
+        .overview-container {
+            background-color: #005959; /* Darker forest green */
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black; /* Make lines black */
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #003535; /* Dark Brown */
             color: white;
         }
         button {
@@ -21,6 +49,10 @@
             margin-top: 15px;
             cursor: pointer;
             border-radius: 5px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
         }
         button:hover {
             background-color: #002424;
@@ -28,10 +60,20 @@
     </style>
 </head>
 <body>
-    <h1>LOA Submission Overview User</h1>
-    <p>Start Date: {{ loa.start_date }}</p>
-    <p>End Date: {{ loa.end_date }}</p>
-    <p>Status: {{ loa.status }}</p>
-    <a href="{% url 'loa_user' %}"><button type="button">Back</button></a>
+    <div class="overview-container">
+        <h1>Leave of Absence Submission Overview</h1>
+        <table>
+            <tr>
+                <td><b>Start Date:</b></td><td>{{ loa.start_date }}</td>
+            </tr>
+            <tr>
+                <td><b>End Date:</b></td><td>{{ loa.end_date }}</td>
+            </tr>
+            <tr>
+                <td><b>Status:</b></td><td>{{ loa.status }}</td>
+            </tr>
+        </table>
+        <a href="{% url 'loa_user' %}"><button type="button">Back</button></a>
+    </div>
 </body>
 </html>

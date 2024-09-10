@@ -112,7 +112,7 @@
                     <th>End Date</th>
                     <th class="filter-container">
                         Status
-                        <select name="status_filter" id="status_filter">
+                        <select name="status_filter", id="status_filter">
                             <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
                             <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
                             <option value="denied" {% if status_filter == 'denied' %}selected{% endif %}>Denied</option>
@@ -129,7 +129,7 @@
                     <td>{{ loa.end_date }}</td>
                     <td>{{ loa.status }}</td>
                     <td>
-                        <a href="{% url 'loa_submission_overview_user' %}?id={{ loa.id }}"><button class="action-button" type="button">View</button></a>
+                        <a href="{% url 'loa_submission_overview_user' loa.id %}"><button class="action-button" type="button">View</button></a>
                         <a href="{% url 'loa_edit_user' loa.id %}"><button class="action-button" type="button">Edit</button></a>
                         <a href="{% url 'loa_delete_user' loa.id %}"><button class="action-button" type="button">Delete</button></a>
                     </td>

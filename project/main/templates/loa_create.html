@@ -9,17 +9,43 @@
             background-color: #008080; /* Forest Green */
             margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
         }
         h1 {
             color: white;
+            text-align: center;
         }
-        form {
+        .form-container {
             background-color: #005959; /* Darker forest green */
             padding: 20px;
             border-radius: 10px;
-            display: inline-block;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+            margin: auto;
         }
-        button {
+        .form-container form {
+            margin-bottom: 20px;
+        }
+        .form-container label {
+            display: block;
+            margin-top: 10px;
+        }
+        .form-container input[type="text"], 
+        .form-container input[type="date"], 
+        .form-container textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .form-container button, .form-container a button {
             background-color: #003535; /* Dark Brown */
             color: white;
             border: none;
@@ -27,19 +53,28 @@
             margin-top: 15px;
             cursor: pointer;
             border-radius: 5px;
+            display: block;
+            width: 100%; /* Make buttons stretch across the form */
+            box-sizing: border-box;
+            text-align: center;
+            text-decoration: none;
         }
-        button:hover {
+        .form-container button:hover, .form-container a button:hover  {
             background-color: #002424;
         }
     </style>
 </head>
 <body>
-    <h1>Create Leave of Absence</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit</button>
-    </form>
-    <a href="{% if is_admin or is_approver or is_it %}{% url 'loa_admin_hr' %}{% else %}{% url 'loa_user' %}{% endif %}"><button type="button">Back</button></a>
+    <div class="form-container">
+        <h1>Create Leave of Absence</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit</button>
+        </form>
+        <a href="{% if is_admin or is_approver or is_it %}{% url 'loa_admin_hr' %}{% else %}{% url 'loa_user' %}{% endif %}">
+            <button type="button">Back</button>
+        </a>
+    </div>
 </body>
 </html>
