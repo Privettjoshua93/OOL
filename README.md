@@ -15,7 +15,7 @@ This project is designed to manage the onboarding, offboarding, and leave of abs
 
 ## Dependencies
 
-Make sure you have the following dependencies installed before running the project:
+Make sure you have the following dependencies installed before running the project. Install them in a venv if you don't want global installs:
 
 ```sh
 pip install django==5.1
@@ -37,14 +37,7 @@ pip install django-encrypted-model-fields
 git clone https://github.com/Privettjoshua93/OOL.git
 ```
 
-### 2. Create and activate a virtual environment
-
-```sh
-python -m venv env
-.env\Scripts\activate
-```
-
-### 3. Generate an encryption key
+### 2. Generate an encryption key
 
 Use the following Python script to generate an encryption key:
 
@@ -58,7 +51,7 @@ print(f"Your encryption key: {key}")
 
 Copy the generated key to be used in the `.env` file.
 
-### 4. Create the `.env` file
+### 3. Create the `.env` file
 
 Create a `.env` file next to your `manage.py` file with the following content:
 
@@ -66,20 +59,20 @@ Create a `.env` file next to your `manage.py` file with the following content:
 ENCRYPTION_KEY = 'your_generated_key_here'
 ```
 
-### 5. Run database migrations
+### 4. Run database migrations
 
 ```sh
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 6. Create a superuser
+### 5. Create a superuser
 
 ```sh
 python manage.py createsuperuser
 ```
 
-### 7. Run the development server
+### 6. Run the development server
 
 ```sh
 python manage.py runserver
